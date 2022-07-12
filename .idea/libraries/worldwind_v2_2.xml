@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="worldwind-v2.2">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/worldwind-v2.2.1" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/worldwind-v2.2.1/src" />
+      <root url="file://$PROJECT_DIR$/worldwind-v2.2.1/test" />
+      <root url="file://$PROJECT_DIR$/worldwind-v2.2.1/testFunctional" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/worldwind-v2.2.1" recursive="false" />
+  </library>
+</component>

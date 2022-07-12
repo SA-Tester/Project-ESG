@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/lib/jogl-all.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/junit-4.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/gluegen-rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/gdal.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

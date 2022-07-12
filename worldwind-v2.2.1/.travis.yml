@@ -1,0 +1,45 @@
+# Directs the Travis CI build service for WorldWind Java
+# For more information see https://docs.travis-ci.com/user/customizing-the-build/
+
+# Set up to run the Java build script per the Travis CI documentation
+language: java
+
+# Configure the build to use Oracle JDK 9
+jdk:
+  - openjdk11
+
+# Install the Ant JUnit package, which is missing from the Travis CI environment. See the Travis documentation: https://docs.travis-ci.com/user/installing-dependencies/#Adding-APT-Packages
+addons:
+  apt:
+    packages:
+      - ant-optional
+      
+services:
+  - xvfb
+  
+# Build the project
+script:
+  - ant -f release-build.xml
+
+# Deployment to be re-instated when WWJ is released.
+#deploy:
+#  # Publish API documentation to GitHub Pages
+#  - provider: pages
+#    github_token: $GITHUB_API_KEY
+#    local_dir: build/doc/javadoc
+#    skip_cleanup: true
+#    on:
+#      branch: develop
+#  # Create CHANGELOG.md in the current directory
+#  - provider: script
+#    script: ./travis/changelog.sh >> CHANGELOG.md
+#    skip_cleanup: true
+#    on:
+#      tags: true
+#  # Create a GitHub release and publish CHANGELOG.md to the release assets
+#  - provider: releases
+#    api_key: $GITHUB_API_KEY
+#    file: CHANGELOG.md
+#    skip_cleanup: true
+#    on:
+#      tags: true

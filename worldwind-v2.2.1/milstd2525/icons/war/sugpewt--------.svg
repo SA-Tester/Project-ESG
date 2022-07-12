@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+Copyright 2006-2009, 2017, 2020 United States Government, as represented by the
+Administrator of the National Aeronautics and Space Administration.
+All rights reserved.
+
+The NASA World Wind Java (WWJ) platform is licensed under the Apache License,
+Version 2.0 (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+NASA World Wind Java (WWJ) also contains the following 3rd party Open Source
+software:
+
+    Jackson Parser – Licensed under Apache 2.0
+    GDAL – Licensed under MIT
+    JOGL – Licensed under  Berkeley Software Distribution (BSD)
+    Gluegen – Licensed under Berkeley Software Distribution (BSD)
+
+A complete listing of 3rd Party software notices and licenses included in
+NASA World Wind Java (WWJ)  can be found in the WorldWindJava-v2.2 3rd-party
+notices and licenses PDF found in code directory.
+-->
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+MIL-STD-2525 tactical symbol icon image. During icon composition this image is multiplied by the desired frame color 
+(e.g. black), then drawn on top of the frame and fill.
+-->
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" height="400px" viewBox="0 0 400 400" width="400px"><g transform="translate(158 91) scale(6.5 6)"><path d="M1.438 7.887 L0 6.52 L6.408 0 L12.824 6.311 L11.289 7.872 L6.4 2.99 zM12.023 34.512    L10.511 35.875 L6.407 31.863 L2.376 35.875 L0.792 34.512 L6.48 28.84 zM11.943    11.117 L10.537 12.541 L7.375 9.516 L7.375 30.352 L5.375 30.352 L5.375 9.609    L2.391 12.468 L0.877 11.114 L6.41 5.514 z" style="fill:rgb(255,255,255)"/></g></svg>

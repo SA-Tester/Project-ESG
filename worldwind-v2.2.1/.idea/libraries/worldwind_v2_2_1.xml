@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="worldwind-v2.2.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/vpf-symbols.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jogl-all.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gdal.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gluegen-rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jogl-all-natives-linux-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jogl-all-natives-windows-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gluegen-rt-natives-windows-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/junit-4.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jogl-all-natives-macosx-universal.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gluegen-rt-natives-macosx-universal.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gluegen-rt-natives-linux-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/worldwind.jar!/" />
+      <root url="jar://$PROJECT_DIR$/worldwindx.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

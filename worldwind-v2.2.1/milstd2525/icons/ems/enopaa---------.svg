@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+Copyright 2006-2009, 2017, 2020 United States Government, as represented by the
+Administrator of the National Aeronautics and Space Administration.
+All rights reserved.
+
+The NASA World Wind Java (WWJ) platform is licensed under the Apache License,
+Version 2.0 (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+NASA World Wind Java (WWJ) also contains the following 3rd party Open Source
+software:
+
+    Jackson Parser – Licensed under Apache 2.0
+    GDAL – Licensed under MIT
+    JOGL – Licensed under  Berkeley Software Distribution (BSD)
+    Gluegen – Licensed under Berkeley Software Distribution (BSD)
+
+A complete listing of 3rd Party software notices and licenses included in
+NASA World Wind Java (WWJ)  can be found in the WorldWindJava-v2.2 3rd-party
+notices and licenses PDF found in code directory.
+-->
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+MIL-STD-2525 tactical symbol icon image. During icon composition this image is multiplied by the desired frame color 
+(e.g. black), then drawn on top of the frame and fill.
+-->
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" height="400px" viewBox="0 0 400 400" width="400px"><g transform="scale(100) translate(0.76 0.78)"><polygon points="0.770457,1.22326 0.388244,1.44798 0.615421,1.84402 1.00096,1.62164 1.0022,2.06367     1.45818,2.06367 1.45818,1.62378 1.84395,1.84453 2.07512,1.45213 1.69273,1.224     2.07748,1.0002 1.84487,0.604256 1.45919,0.826213 1.45818,0.379213 1.0022,0.379213     1.0022,0.824465 0.616413,0.60372 0.388524,0.999752" style="fill:rgb(255,255,255)"/></g></svg>
