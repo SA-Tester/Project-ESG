@@ -16,17 +16,10 @@ public class Styles {
         label.setForeground(color);
         label.setFont(new Font("Arial",Font.BOLD,fontSize));
 
-        switch (alignment.toLowerCase()){
-            case "center":
-                label.setAlignmentX(Component.CENTER_ALIGNMENT);
-                break;
-
-            case "left":
-                label.setAlignmentX(Component.LEFT_ALIGNMENT);
-                break;
-            case "right":
-                label.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                break;
+        switch (alignment.toLowerCase()) {
+            case "center" -> label.setAlignmentX(Component.CENTER_ALIGNMENT);
+            case "left" -> label.setAlignmentX(Component.LEFT_ALIGNMENT);
+            case "right" -> label.setAlignmentX(Component.RIGHT_ALIGNMENT);
         }
 
        panel.add(label);

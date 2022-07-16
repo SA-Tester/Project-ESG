@@ -10,13 +10,14 @@ import java.awt.Dimension;
 
 //Inheritance
 public class Map extends JPanel {
+    int dim[] = new Home().getScreenDimensions();
     Map(){
-        int dim[] = new Home().getScreenDimensions();
+        //new MapPanel(new Dimension((int) dim[0] - 670, dim[1] - 260),true);
+
         WorldWindowGLCanvas wwd = new WorldWindowGLCanvas();
         wwd.setModel(new BasicModel());
         wwd.setPreferredSize(new Dimension((int) dim[0] - 670, dim[1] - 260));
 
-        //RenderableLayer rd = new RenderableLayer();
         this.add(wwd);
     }
 }
