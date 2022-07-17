@@ -14,7 +14,7 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
-public class Home {
+public class Home{
     Styles st = new Styles();
     int[] d = getScreenDimensions();
     int[] getScreenDimensions(){
@@ -57,15 +57,16 @@ public class Home {
         try{
             Icon searchIcon = new ImageIcon("images/search.png");
             searchButton.setIcon(searchIcon);
-        }catch (Exception e){System.out.println(e);}
+        }catch (Exception e){e.printStackTrace();}
 
         locationPanel.add(searchButton);
         return locationPanel;
     }
 
     private JPanel addMap(){
-        JPanel wwdPanel = new Map();
-        wwdPanel.setBackground(Color.BLACK);
+        JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(d[0] - 670, d[1] - 260),true);
+        MapTemplate mp = new MapTemplate();
+        mp.addPlaceMark(50,60,1000);
         return wwdPanel;
     }
 
@@ -103,10 +104,17 @@ public class Home {
         try{
             Icon homeIcon = new ImageIcon("images/home.png");
             homeButton.setIcon(homeIcon);
-
             Icon loginIcon = new ImageIcon("images/login.png");
             loginButton.setIcon(loginIcon);
-        }catch (Exception e) {System.out.println(e);}
+        }catch (Exception e) {e.printStackTrace();}
+
+        loginButton.addActionListener(e -> {
+            UserDetails ud = new UserDetails();
+            ud.fieldNames = new String[2];
+            ud.fieldNames[0] = "Username";
+            ud.fieldNames[1] = "Password";
+            ud.createWindow(500,450, "Login", ud.fieldNames);
+        });
 
         return bottomPanel;
     }
