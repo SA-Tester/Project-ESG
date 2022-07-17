@@ -11,6 +11,8 @@ import java.awt.Font;
 
 
 public class Styles {
+    //static int[] dim = new Home().getScreenDimensions();
+
     public void setText(JPanel panel, String text,int fontSize,Color color, String alignment){
         JLabel label = new JLabel(text);
         label.setForeground(color);
