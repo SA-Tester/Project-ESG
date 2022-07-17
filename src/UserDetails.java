@@ -1,10 +1,5 @@
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.BorderFactory;
-import javax.swing.JPasswordField;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -53,6 +48,16 @@ public class UserDetails {
         passField.setBorder(border);
         return passField;
     }
+
+    protected JButton addButton(String btnName, int x, int y){
+        JButton btn = new JButton(btnName);
+        btn.setBounds(x,150+y,150,50);
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(Color.DARK_GRAY);
+        btn.setFont(new Font("Arial",Font.BOLD,18));
+        return btn;
+    }
+
     public void createWindow(int width, int height, String title, String[] fieldNames){
         panel = new JPanel();
         panel.setBackground(Color.BLACK);
@@ -73,8 +78,12 @@ public class UserDetails {
             }
         }
 
+        panel.add(addButton(title,50,fieldNames.length*70));
+        panel.add(addButton("Cancel", 300,fieldNames.length*70));
+
         frame = new JFrame();
         frame.add(panel);
+        frame.pack();
         frame.setSize(width,height);
         frame.setLocation((dim[0]-width)/2, (dim[1]-height)/2);
         frame.setVisible(true);

@@ -1,21 +1,52 @@
+/*
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Box;
-import javax.swing.WindowConstants;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JTextArea;
-import javax.swing.Icon;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.Icon;
+import javax.swing.WindowConstants;
+import javax.swing.border.Border;
 
-import java.awt.Dimension;
+
+import java.awt.Component;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.BorderLayout;
+*/
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.border.EmptyBorder;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.Icon;
+import javax.swing.WindowConstants;
+import javax.swing.border.Border;
+
+
+import java.awt.Component;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
 public class Home{
-    Styles st = new Styles();
     int[] d = getScreenDimensions();
     int[] getScreenDimensions(){
         int[] dim = new int[2];
@@ -26,6 +57,30 @@ public class Home{
         return dim;
     }
 
+    private void setText(JPanel panel, String text, int fontSize){
+        JLabel label = new JLabel(text);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Arial",Font.BOLD,fontSize));
+
+        switch ("center".toLowerCase()) {
+            case "center" -> label.setAlignmentX(Component.CENTER_ALIGNMENT);
+            case "left" -> label.setAlignmentX(Component.LEFT_ALIGNMENT);
+            case "right" -> label.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        }
+
+        panel.add(label);
+    }
+
+    private void setTextBoxStyle(JPanel panel){
+        JTextField textField = new JTextField();
+        Font textFont = new Font("Arial",Font.PLAIN,18);
+        textField.setFont(textFont);
+        Border textBoxBorder = BorderFactory.createLineBorder(Color.WHITE,3);
+        textField.setBorder(textBoxBorder);
+        textField.setBounds(20, 20, 200, 40);
+        panel.add(textField);
+    }
+
     private JPanel setTitle(){
         JPanel titleBar = new JPanel();
         titleBar.setBackground(Color.BLACK);
@@ -33,9 +88,9 @@ public class Home{
         titleBar.setLayout(new BoxLayout(titleBar,BoxLayout.Y_AXIS)); //Used to add content vertically to the titleBar
         titleBar.setBorder(new EmptyBorder(15,15,15,15)); //Set Padding to Panel
 
-        st.setText(titleBar,"ESG",30,Color.WHITE,"center");
+        setText(titleBar,"ESG",30);
         titleBar.add(Box.createRigidArea(new Dimension(0,5))); //Add a vertical Space Between 2 titles
-        st.setText(titleBar,"Environmental Social Governance",20,Color.WHITE,"center");
+        setText(titleBar,"Environmental Social Governance",20);
 
         return titleBar;
     }
@@ -47,7 +102,7 @@ public class Home{
         locationPanel.setLayout(null);
         locationPanel.setBorder(new EmptyBorder(15,15,15,15));
 
-        st.setTextBoxStyle(locationPanel,20,20,200,40);
+        setTextBoxStyle(locationPanel);
 
         JButton searchButton = new JButton();
         searchButton.setSize(50,41);
@@ -113,7 +168,7 @@ public class Home{
             ud.fieldNames = new String[2];
             ud.fieldNames[0] = "Username";
             ud.fieldNames[1] = "Password";
-            ud.createWindow(500,450, "Login", ud.fieldNames);
+            ud.createWindow(500,430, "Login", ud.fieldNames);
         });
 
         return bottomPanel;
