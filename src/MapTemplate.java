@@ -9,7 +9,6 @@ import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.PointPlacemarkAttributes;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.Model;
-import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.util.HighlightController;
 import gov.nasa.worldwindx.examples.util.ToolTipController;
 
@@ -22,7 +21,6 @@ import java.awt.BorderLayout;
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
-    static int dim[] = new Home().getScreenDimensions();
     public static WorldWindow wwdPublic;
 
     public static class MapPanel extends JPanel{
@@ -78,7 +76,7 @@ public class MapTemplate {
     public void addPlaceMark(float lat, float lon, float elevation){
         final RenderableLayer placeMarkLayer = new RenderableLayer();
 
-        PointPlacemark p1 = new PointPlacemark(Position.fromDegrees(50,10,1e3));
+        PointPlacemark p1 = new PointPlacemark(Position.fromDegrees(lat,lon,elevation));
         p1.setLabelText("PlaceMark 1");
         p1.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         //p1.setLineEnabled(false);
