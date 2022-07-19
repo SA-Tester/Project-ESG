@@ -47,7 +47,11 @@ import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
 public class Home{
-    int[] d = getScreenDimensions();
+    //Identifier of Main Window
+    JFrame homeFrame;
+
+    //Array holding screen width and height. Only used by hte Home class
+    protected int[] d = getScreenDimensions();
     int[] getScreenDimensions(){
         int[] dim = new int[2];
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -57,6 +61,7 @@ public class Home{
         return dim;
     }
 
+    //When called add any text to a panel which is implemented via BorderLayout
     private void setText(JPanel panel, String text, int fontSize){
         JLabel label = new JLabel(text);
         label.setForeground(Color.WHITE);
@@ -67,10 +72,10 @@ public class Home{
             case "left" -> label.setAlignmentX(Component.LEFT_ALIGNMENT);
             case "right" -> label.setAlignmentX(Component.RIGHT_ALIGNMENT);
         }
-
         panel.add(label);
     }
 
+    //Formatting for Text Boxes
     private void setTextBoxStyle(JPanel panel){
         JTextField textField = new JTextField();
         Font textFont = new Font("Arial",Font.PLAIN,18);
@@ -168,7 +173,12 @@ public class Home{
             ud.fieldNames = new String[2];
             ud.fieldNames[0] = "Username";
             ud.fieldNames[1] = "Password";
-            ud.createWindow(500,430, "Login", ud.fieldNames);
+            ud.createWindow(500,430, "Login", ud.fieldNames,200,250);
+        });
+
+        homeButton.addActionListener(e -> {
+            homeFrame.dispose();
+            createHomeInterface();
         });
 
         return bottomPanel;
@@ -184,10 +194,10 @@ public class Home{
         homePanel.add(setTitle(),BorderLayout.NORTH);
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
         homePanel.add(addSearch(),BorderLayout.WEST);
-        homePanel.add(addMap(),BorderLayout.CENTER);
+        //homePanel.add(addMap(),BorderLayout.CENTER);
         homePanel.add(addUserHistoryPanel(),BorderLayout.EAST);
 
-        JFrame homeFrame = new JFrame();
+        homeFrame = new JFrame();
         homeFrame.setSize(dim[0],dim[1]);
         homeFrame.setTitle("ESG");
         homeFrame.add(homePanel);
