@@ -30,12 +30,17 @@ import java.awt.Cursor;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
+import java.util.ArrayList;
+
 public class UserDetails{
     JPanel panel;
     JFrame frame;
     JLabel hyperLink;
     String[] fieldNames;
     int[] dim = new Home().getScreenDimensions();
+
+    ArrayList <JTextField> textFields = new ArrayList<>();
+    protected JPasswordField passField;
 
     protected JLabel setTitle(String title, int panelWidth){
         JLabel titleLabel = new JLabel(title);
@@ -61,6 +66,8 @@ public class UserDetails{
 
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         textField.setBorder(border);
+
+        textFields.add(textField);
         return textField;
     }
 
@@ -72,6 +79,8 @@ public class UserDetails{
 
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         passField.setBorder(border);
+
+        this.passField = passField;
         return passField;
     }
 
@@ -88,6 +97,19 @@ public class UserDetails{
             });
         }
 
+        else if(btnName.equals("Login")){
+            Login login = new Login();
+            btn.addActionListener(e->{
+                for(JTextField textField: textFields){
+                    if(textField.getName().equals("usernameTextBox")){
+                        login.inputUsername = textField.getText();
+                    }
+                }
+                char[] passIn = this.passField.getPassword();
+                login.inputPassword = new String(passIn);
+                login.testOutput();
+            });
+        }
         return btn;
     }
 
@@ -130,7 +152,7 @@ public class UserDetails{
         frame.setVisible(true);
     }
 
-    protected class Hyperlinks extends JLabel implements MouseListener{
+    private class Hyperlinks extends JLabel implements MouseListener{
         protected JLabel addHyperLink(String linkTitle, int x, int y){
             hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
@@ -166,5 +188,4 @@ public class UserDetails{
         public void mousePressed(MouseEvent e){}
         public void mouseReleased(MouseEvent e){}
     }
-
 }

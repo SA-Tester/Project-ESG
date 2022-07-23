@@ -4,7 +4,12 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.layers.*;
+import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.ViewControlsLayer;
+import gov.nasa.worldwind.layers.CompassLayer;
+import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.PointPlacemarkAttributes;
 import gov.nasa.worldwind.util.StatusBar;
@@ -30,8 +35,7 @@ public class MapTemplate {
         protected HighlightController highlightController;
 
         public MapPanel(Dimension canvasSize, boolean includeStatusBar){
-            //Keyword super set the parent class attributes as defined
-            //Here Parent class is JPanel
+            //Keyword super set the parent class attributes as defined. Here Parent class is JPanel
             //Super set the JPanel Layout a BorderLayout
             super(new BorderLayout());
 

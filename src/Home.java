@@ -168,7 +168,7 @@ public class Home{
             loginButton.setIcon(loginIcon);
         }catch (Exception e) {e.printStackTrace();}
 
-        loginButton.addActionListener(e -> {
+        loginButton.addActionListener(e->{
             UserDetails ud = new UserDetails();
             ud.fieldNames = new String[2];
             ud.fieldNames[0] = "Username";
