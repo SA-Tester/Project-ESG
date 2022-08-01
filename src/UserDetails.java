@@ -30,12 +30,25 @@ import java.awt.Cursor;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
+import java.util.ArrayList;
+
 public class UserDetails{
-    JPanel panel;
-    JFrame frame;
-    JLabel hyperLink;
-    String[] fieldNames;
+    private JFrame frame;
+    private String[] fieldNames;
+    ArrayList <JTextField> textFields = new ArrayList<>();
+    protected JPasswordField passField;
+
     int[] dim = new Home().getScreenDimensions();
+
+    //ENCAPSULATION ==============================================================
+    public String[] getFieldNames() {
+        return fieldNames;
+    }
+
+    public void setFieldNames(String[] inputFieldNames){
+        fieldNames = inputFieldNames;
+    }
+    //=============================================================================
 
     protected JLabel setTitle(String title, int panelWidth){
         JLabel titleLabel = new JLabel(title);
@@ -61,6 +74,8 @@ public class UserDetails{
 
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         textField.setBorder(border);
+
+        textFields.add(textField);
         return textField;
     }
 
@@ -72,6 +87,8 @@ public class UserDetails{
 
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         passField.setBorder(border);
+
+        this.passField = passField;
         return passField;
     }
 
@@ -88,11 +105,24 @@ public class UserDetails{
             });
         }
 
+        else if(btnName.equals("Login")){
+            Login login = new Login();
+            btn.addActionListener(e->{
+                for(JTextField textField: textFields){
+                    if(textField.getName().equals("usernameTextBox")){
+                        login.inputUsername = textField.getText();
+                    }
+                }
+                char[] passIn = this.passField.getPassword();
+                login.inputPassword = new String(passIn);
+                login.outLogin();
+            });
+        }
         return btn;
     }
 
     public void createWindow(int width, int height, String title, String[] fieldNames, int afterLabelPaddingX,int widthOfTextField){
-        panel = new JPanel();
+        JPanel panel = new JPanel();
         panel.setName(title+"Panel");
         panel.setBackground(Color.BLACK);
         panel.setSize(width,height);
@@ -130,9 +160,12 @@ public class UserDetails{
         frame.setVisible(true);
     }
 
-    protected class Hyperlinks extends JLabel implements MouseListener{
+    //ABSTRACTION ===================================================================================================================================
+    //Mouse Listener is an Interface Provided in java.awt.event.MouseListener class
+    //When the interface is called for use all the abstract methods should be implemented along with them even they are not used.
+    private class Hyperlinks extends JLabel implements MouseListener{
         protected JLabel addHyperLink(String linkTitle, int x, int y){
-            hyperLink = new JLabel(linkTitle);
+            JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
             hyperLink.setForeground(Color.BLUE);
             hyperLink.setFont(new Font("Arial", Font.PLAIN,18));
@@ -166,5 +199,5 @@ public class UserDetails{
         public void mousePressed(MouseEvent e){}
         public void mouseReleased(MouseEvent e){}
     }
-
+    //===============================================================================================================================================
 }

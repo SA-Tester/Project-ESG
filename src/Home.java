@@ -36,7 +36,7 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.Icon;
 import javax.swing.WindowConstants;
-import javax.swing.border.Border;
+import javax.swing.JComboBox;
 
 
 import java.awt.Component;
@@ -49,7 +49,6 @@ import java.awt.BorderLayout;
 public class Home{
     //Identifier of Main Window
     JFrame homeFrame;
-
     //Array holding screen width and height. Only used by hte Home class
     protected int[] d = getScreenDimensions();
     int[] getScreenDimensions(){
@@ -57,7 +56,6 @@ public class Home{
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         dim[0] = (int)d.getWidth();
         dim[1] = (int)d.getHeight();
-
         return dim;
     }
 
@@ -75,21 +73,11 @@ public class Home{
         panel.add(label);
     }
 
-    //Formatting for Text Boxes
-    private void setTextBoxStyle(JPanel panel){
-        JTextField textField = new JTextField();
-        Font textFont = new Font("Arial",Font.PLAIN,18);
-        textField.setFont(textFont);
-        Border textBoxBorder = BorderFactory.createLineBorder(Color.WHITE,3);
-        textField.setBorder(textBoxBorder);
-        textField.setBounds(20, 20, 200, 40);
-        panel.add(textField);
-    }
-
+    //Set Title of a JPanel
     private JPanel setTitle(){
         JPanel titleBar = new JPanel();
         titleBar.setBackground(Color.BLACK);
-        titleBar.setPreferredSize(new Dimension(d[0],100)); //Polymorphism: Because setSize also take new Dimension(double, double) inputs
+        titleBar.setPreferredSize(new Dimension(d[0],100)); //Runtime Polymorphism: Because setSize also take new Dimension(double, double) inputs
         titleBar.setLayout(new BoxLayout(titleBar,BoxLayout.Y_AXIS)); //Used to add content vertically to the titleBar
         titleBar.setBorder(new EmptyBorder(15,15,15,15)); //Set Padding to Panel
 
@@ -100,36 +88,46 @@ public class Home{
         return titleBar;
     }
 
+    //Add the Search Panel to the main window
     private JPanel addSearch(){
+        //Create JPanel containing Search and Admin Buttons
         JPanel locationPanel = new JPanel();
         locationPanel.setBackground(Color.DARK_GRAY);
         locationPanel.setPreferredSize(new Dimension(300,d[1]-200));
         locationPanel.setLayout(null);
         locationPanel.setBorder(new EmptyBorder(15,15,15,15));
 
-        setTextBoxStyle(locationPanel);
+        String[] placeMarkList = {"hello","yellow"};
+        JComboBox<String> locationList = new JComboBox<>(placeMarkList);
+        locationList.setBounds(20, 20, 200, 40);
+        locationList.setFont(new Font("Arial",Font.PLAIN,18));
+        locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
+        locationPanel.add(locationList);
 
         JButton searchButton = new JButton();
         searchButton.setSize(50,41);
         searchButton.setLocation(230,20);
         searchButton.setBackground(Color.WHITE);
+        locationPanel.add(searchButton);
 
         try{
             Icon searchIcon = new ImageIcon("images/search.png");
             searchButton.setIcon(searchIcon);
         }catch (Exception e){e.printStackTrace();}
 
-        locationPanel.add(searchButton);
         return locationPanel;
     }
 
-    private JPanel addMap(){
-        JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(d[0] - 670, d[1] - 260),true);
+    //Add map to main window
+    private JPanel addMap() {
+        JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(d[0] - 670, d[1] - 260), true);
         MapTemplate mp = new MapTemplate();
-        mp.addPlaceMark(50,60,1000);
+        mp.addPlaceMark(50, 60, "Place 1");
+        mp.addPlaceMark(100, 35, "Place 2");
         return wwdPanel;
     }
 
+    //Add user history panel to main window
     private JPanel addUserHistoryPanel(){
         JPanel userPanel = new JPanel();
         userPanel.setBackground(Color.DARK_GRAY);
@@ -137,6 +135,7 @@ public class Home{
         return userPanel;
     }
 
+    //Add Bottom Bar to main window
     private JPanel addBottomBar(){
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBackground(Color.GRAY);
@@ -168,12 +167,10 @@ public class Home{
             loginButton.setIcon(loginIcon);
         }catch (Exception e) {e.printStackTrace();}
 
-        loginButton.addActionListener(e -> {
-            UserDetails ud = new UserDetails();
-            ud.fieldNames = new String[2];
-            ud.fieldNames[0] = "Username";
-            ud.fieldNames[1] = "Password";
-            ud.createWindow(500,430, "Login", ud.fieldNames,200,250);
+        loginButton.addActionListener(e->{
+            UserDetails loginInterface = new Login();
+            loginInterface.setFieldNames(new String[]{"Username", "Password"});
+            loginInterface.createWindow(500,430, "Login", loginInterface.getFieldNames(),200,250);
         });
 
         homeButton.addActionListener(e -> {
@@ -184,6 +181,7 @@ public class Home{
         return bottomPanel;
     }
 
+    //Create the Main interface (Home)
     void createHomeInterface(){
 
         int[] dim = getScreenDimensions();
@@ -194,7 +192,7 @@ public class Home{
         homePanel.add(setTitle(),BorderLayout.NORTH);
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
         homePanel.add(addSearch(),BorderLayout.WEST);
-        //homePanel.add(addMap(),BorderLayout.CENTER);
+        homePanel.add(addMap(),BorderLayout.CENTER);
         homePanel.add(addUserHistoryPanel(),BorderLayout.EAST);
 
         homeFrame = new JFrame();

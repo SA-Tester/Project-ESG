@@ -4,7 +4,12 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.layers.*;
+import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.ViewControlsLayer;
+import gov.nasa.worldwind.layers.CompassLayer;
+import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.PointPlacemarkAttributes;
 import gov.nasa.worldwind.util.StatusBar;
@@ -18,20 +23,25 @@ import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.BorderLayout;
 
+import java.util.ArrayList;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
     public static WorldWindow wwdPublic;
+    ArrayList <String> placeMarkData = new ArrayList<>();
 
-    public static class MapPanel extends JPanel{
+   public static class MapPanel extends JPanel{
         protected WorldWindow wwd;
         protected StatusBar statusBar;
         protected ToolTipController toolTipController;
         protected HighlightController highlightController;
 
         public MapPanel(Dimension canvasSize, boolean includeStatusBar){
-            //Keyword super set the parent class attributes as defined
-            //Here Parent class is JPanel
+            //Keyword super set the parent class attributes as defined. Here Parent class is JPanel
             //Super set the JPanel Layout a BorderLayout
             super(new BorderLayout());
 
@@ -43,9 +53,6 @@ public class MapTemplate {
             //Crete Default model
             Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
             this.wwd.setModel(m);
-
-            //Add a Listener
-            //this.wwd.addSelectListener(new ClickAndGoSelectListener(this.getWWD(), WorldMapLayer.class));
 
             this.add((Component) this.wwd, BorderLayout.CENTER);
             if(includeStatusBar){
@@ -73,20 +80,44 @@ public class MapTemplate {
         insertBeforeCompass(wwdPublic, viewControlsLayer);
         wwdPublic.addSelectListener(new ViewControlsSelectListener(wwdPublic, viewControlsLayer));
     }
-    public void addPlaceMark(float lat, float lon, float elevation){
+    public void addPlaceMark(float lat, float lon, String name){
         final RenderableLayer placeMarkLayer = new RenderableLayer();
 
-        PointPlacemark p1 = new PointPlacemark(Position.fromDegrees(lat,lon,elevation));
-        p1.setLabelText("PlaceMark 1");
-        p1.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
-        //p1.setLineEnabled(false);
-        p1.setEnableLabelPicking(true);
+        PointPlacemark p = new PointPlacemark(Position.fromDegrees(lat,lon,1000));
+        p.setLabelText(name);
+        p.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        p.setEnableLabelPicking(true);
         PointPlacemarkAttributes attributes = new PointPlacemarkAttributes();
         attributes.setImageAddress("images/locationPin.png");
-        p1.setAttributes(attributes);
-        placeMarkLayer.addRenderable(p1);
+        p.setAttributes(attributes);
+        placeMarkLayer.addRenderable(p);
 
         insertBeforeCompass(wwdPublic,placeMarkLayer);
+        new ViewPlaceMarkDetails().getPlaceMarks(p);
+        writeToFile();
+    }
+
+    abstract static class PlaceMarkDetails{
+       abstract void getPlaceMarks(PointPlacemark p);
+    }
+
+    public class ViewPlaceMarkDetails extends PlaceMarkDetails{
+       public void getPlaceMarks(PointPlacemark p){
+           String dataLine = p.getLabelText() + "," + p.getPosition().latitude.toString() + "," + p.getPosition().longitude.toString()+'\n';
+           placeMarkData.add(dataLine);
+       }
+    }
+
+    public void writeToFile(){
+        try{
+            FileWriter placeMarkFileW = new FileWriter("data/PlaceMarkDetails.csv");
+            for(String d: placeMarkData){
+                placeMarkFileW.write(d);
+            }
+            placeMarkFileW.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
     public static void insertBeforeCompass(WorldWindow wwd, Layer layer){
         int compassPosition = 0;
