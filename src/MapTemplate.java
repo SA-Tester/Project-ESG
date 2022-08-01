@@ -24,11 +24,9 @@ import java.awt.Component;
 import java.awt.BorderLayout;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.File;
 
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java

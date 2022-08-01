@@ -33,9 +33,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class UserDetails{
-    private JPanel panel;
     private JFrame frame;
-    private JLabel hyperLink;
     private String[] fieldNames;
     ArrayList <JTextField> textFields = new ArrayList<>();
     protected JPasswordField passField;
@@ -124,7 +122,7 @@ public class UserDetails{
     }
 
     public void createWindow(int width, int height, String title, String[] fieldNames, int afterLabelPaddingX,int widthOfTextField){
-        panel = new JPanel();
+        JPanel panel = new JPanel();
         panel.setName(title+"Panel");
         panel.setBackground(Color.BLACK);
         panel.setSize(width,height);
@@ -167,7 +165,7 @@ public class UserDetails{
     //When the interface is called for use all the abstract methods should be implemented along with them even they are not used.
     private class Hyperlinks extends JLabel implements MouseListener{
         protected JLabel addHyperLink(String linkTitle, int x, int y){
-            hyperLink = new JLabel(linkTitle);
+            JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
             hyperLink.setForeground(Color.BLUE);
             hyperLink.setFont(new Font("Arial", Font.PLAIN,18));

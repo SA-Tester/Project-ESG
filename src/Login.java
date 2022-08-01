@@ -6,9 +6,6 @@ import java.util.Scanner;
 public class Login extends UserDetails{
     protected String inputUsername;
     protected String inputPassword;
-    private String storedUsername;
-    private String storedPassword;
-    private String storedPrivilegeType;
     private String msg;
 
     abstract class GetData{
@@ -18,10 +15,10 @@ public class Login extends UserDetails{
                 File loginFile = new File("data/LoginInfo.csv");
                 Scanner scanner = new Scanner(loginFile);
                 while (scanner.hasNextLine()){
-                    String data[] = scanner.nextLine().split(",");
-                    storedUsername = data[0];
-                    storedPassword = data[1];
-                    storedPrivilegeType = data[2];
+                    String[] data = scanner.nextLine().split(",");
+                    String storedUsername = data[0];
+                    String storedPassword = data[1];
+                    String storedPrivilegeType = data[2];
 
                     if(inputUsername.equals(storedUsername) && inputPassword.equals(storedPassword) && storedPrivilegeType.equals("admin")){
                         msg = "ADMIN PRIVILEGES";
@@ -38,7 +35,7 @@ public class Login extends UserDetails{
             catch(FileNotFoundException e){
                 System.out.println("AN UNEXPECTED ERROR OCCURRED");
                 e.printStackTrace();
-            };
+            }
         }
     }
 
@@ -59,7 +56,7 @@ public class Login extends UserDetails{
             }catch(Exception e){
                 System.out.println("AN UNEXPECTED ERROR OCCURRED");
                 e.printStackTrace();
-            };
+            }
         }
     }
     public void outLogin(){

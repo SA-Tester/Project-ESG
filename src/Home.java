@@ -36,7 +36,6 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.Icon;
 import javax.swing.WindowConstants;
-import javax.swing.border.Border;
 import javax.swing.JComboBox;
 
 
@@ -46,10 +45,6 @@ import java.awt.Font;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import java.util.ArrayList;
 
 public class Home{
     //Identifier of Main Window
