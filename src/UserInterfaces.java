@@ -32,25 +32,22 @@ import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
 
-public class UserDetails{
-    private JFrame frame;
-    private String[] fieldNames;
-    ArrayList <JTextField> textFields = new ArrayList<>();
-    protected JPasswordField passField;
+public class UserInterfaces{
+    private JFrame frame;// = new JFrame();                                   //Base Frame for child classes
+    private String[] fieldNames;                            //Get the names of input fields which should be in the interface. Encapsulated
+    ArrayList <JTextField> textFields = new ArrayList<>();  //Hold the names of JTextFields for future access
+    //ArrayList<JFrame> frames = new ArrayList<>();
+    protected JPasswordField passField;                     //Hold the JPasswordField name for future access
 
-    int[] dim = new Home().getScreenDimensions();
+    int[] dim = new Home().getScreenDimensions();           //Get Screen dimensions
 
-    //ENCAPSULATION ==============================================================
     public String[] getFieldNames() {
         return fieldNames;
-    }
+    }   //Return fieldNames private array. ENCAPSULATION
 
-    public void setFieldNames(String[] inputFieldNames){
-        fieldNames = inputFieldNames;
-    }
-    //=============================================================================
+    public void setFieldNames(String[] inputFieldNames){fieldNames = inputFieldNames;}      //Assign user input field names to the private fieldNames array. ENCAPSULATION
 
-    protected JLabel setTitle(String title, int panelWidth){
+    protected JLabel setTitle(String title, int panelWidth){        //Format a JLabel into a Title. JPanel Layout is set to null
         JLabel titleLabel = new JLabel(title);
         titleLabel.setBounds(panelWidth/2-35,20,panelWidth, 40);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -58,7 +55,7 @@ public class UserDetails{
         titleLabel.setForeground(Color.WHITE);
         return titleLabel;
     }
-    protected JLabel addLabels(String labelName, int y){
+    protected JLabel addLabels(String labelName, int y){            //Add labels of the filed names to the GUI
         JLabel label = new JLabel(labelName+": ");
         label.setFont(new Font("Arial",Font.BOLD,20));
         label.setForeground(Color.WHITE);
@@ -66,7 +63,7 @@ public class UserDetails{
         return label;
     }
 
-    protected JTextField addTextFields(String textFieldName, int y, int afterLabelPaddingX,int widthOfTextField){
+    protected JTextField addTextFields(String textFieldName, int y, int afterLabelPaddingX,int widthOfTextField){       //Add JTextFields to get user inputs to GUI
         JTextField textField = new JTextField();
         textField.setName(textFieldName.toLowerCase()+"TextBox");
         textField.setFont(new Font("Arial",Font.PLAIN,20));
@@ -79,7 +76,7 @@ public class UserDetails{
         return textField;
     }
 
-    protected JPasswordField addPasswordField(int y,int afterLabelPaddingX, int widthOfTextField){
+    protected JPasswordField addPasswordField(int y,int afterLabelPaddingX, int widthOfTextField){                      //Add JPasswordField to input passwords
         JPasswordField passField = new JPasswordField();
         passField.setName("passwordTextBox");
         passField.setFont(new Font("Arial",Font.PLAIN,20));
@@ -92,7 +89,7 @@ public class UserDetails{
         return passField;
     }
 
-    protected JButton addButton(String btnName, int x, int y){
+    protected JButton addButton(String btnName, int x, int y){          //Add a JButton to the GUI
         JButton btn = new JButton(btnName);
         btn.setBounds(x,150+y,150,50);
         btn.setForeground(Color.WHITE);
@@ -105,7 +102,7 @@ public class UserDetails{
             });
         }
 
-        else if(btnName.equals("Login")){
+        if(btnName.equals("Login")){
             Login login = new Login();
             btn.addActionListener(e->{
                 for(JTextField textField: textFields){
@@ -121,7 +118,7 @@ public class UserDetails{
         return btn;
     }
 
-    public void createWindow(int width, int height, String title, String[] fieldNames, int afterLabelPaddingX,int widthOfTextField){
+    public void createWindow(int width, int height, String title, String[] fieldNames, int afterLabelPaddingX,int widthOfTextField){ //Create the Finalized JPanel
         JPanel panel = new JPanel();
         panel.setName(title+"Panel");
         panel.setBackground(Color.BLACK);
@@ -151,8 +148,9 @@ public class UserDetails{
         panel.add(addButton(title,50,fieldNames.length*70));
         panel.add(addButton("Cancel", width-200,fieldNames.length*70));
 
-        frame = new JFrame();
-        frame.setName(title+"Frame");
+        new Login();
+        frame = Login.loginFrame;
+        frame.setName(title.toLowerCase()+"Frame");
         frame.add(panel);
         frame.pack();
         frame.setSize(width,height);
@@ -163,7 +161,7 @@ public class UserDetails{
     //ABSTRACTION ===================================================================================================================================
     //Mouse Listener is an Interface Provided in java.awt.event.MouseListener class
     //When the interface is called for use all the abstract methods should be implemented along with them even they are not used.
-    private class Hyperlinks extends JLabel implements MouseListener{
+    private class Hyperlinks extends JLabel implements MouseListener{       //Convert JLabels to Hyperlinks
         protected JLabel addHyperLink(String linkTitle, int x, int y){
             JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
@@ -200,4 +198,5 @@ public class UserDetails{
         public void mouseReleased(MouseEvent e){}
     }
     //===============================================================================================================================================
+
 }

@@ -26,7 +26,6 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.BorderFactory;
@@ -46,11 +45,22 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
+import java.io.File;
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
 public class Home{
     //Identifier of Main Window
-    JFrame homeFrame;
+    static JFrame homeFrame;
+    static JPanel leftPanel = new JPanel();
     //Array holding screen width and height. Only used by hte Home class
     protected int[] d = getScreenDimensions();
+    MapTemplate mp = new MapTemplate();
     int[] getScreenDimensions(){
         int[] dim = new int[2];
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -89,39 +99,62 @@ public class Home{
     }
 
     //Add the Search Panel to the main window
-    private JPanel addSearch(){
+    public JPanel addLeftPanel(){
         //Create JPanel containing Search and Admin Buttons
-        JPanel locationPanel = new JPanel();
-        locationPanel.setBackground(Color.DARK_GRAY);
-        locationPanel.setPreferredSize(new Dimension(300,d[1]-200));
-        locationPanel.setLayout(null);
-        locationPanel.setBorder(new EmptyBorder(15,15,15,15));
+        leftPanel.setBackground(Color.DARK_GRAY);
+        leftPanel.setPreferredSize(new Dimension(300,d[1]-200));
+        leftPanel.setLayout(null);
+        leftPanel.setBorder(new EmptyBorder(15,15,15,15));
 
-        String[] placeMarkList = {"hello","yellow"};
-        JComboBox<String> locationList = new JComboBox<>(placeMarkList);
+        ArrayList<String> placeMarkNameList = new ArrayList<>();
+        ArrayList<String> placeMarkLatList = new ArrayList<>();
+        ArrayList<String> placeMarkLonList = new ArrayList<>();
+        try {
+            File placeMarks = new File("data/PlaceMarkDetails.csv");
+            Scanner scanner = new Scanner(placeMarks);
+            while(scanner.hasNextLine()){
+                String[] data = scanner.nextLine().split(",");
+                placeMarkNameList.add(data[0]);
+                placeMarkLatList.add(data[1]);
+                placeMarkLonList.add(data[2]);
+            }
+            scanner.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        JComboBox<Object> locationList = new JComboBox<>(placeMarkNameList.toArray());
         locationList.setBounds(20, 20, 200, 40);
         locationList.setFont(new Font("Arial",Font.PLAIN,18));
         locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
-        locationPanel.add(locationList);
+        leftPanel.add(locationList);
 
         JButton searchButton = new JButton();
         searchButton.setSize(50,41);
         searchButton.setLocation(230,20);
         searchButton.setBackground(Color.WHITE);
-        locationPanel.add(searchButton);
+        leftPanel.add(searchButton);
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //mp.removePlaceMark(50,60);
+                double selectedLat = Double.parseDouble(placeMarkLatList.get(locationList.getSelectedIndex()));
+                double selectedLon = Double.parseDouble(placeMarkLonList.get(locationList.getSelectedIndex()));
+                mp.goTo(selectedLat,selectedLon);
+            }
+        });
 
         try{
             Icon searchIcon = new ImageIcon("images/search.png");
             searchButton.setIcon(searchIcon);
         }catch (Exception e){e.printStackTrace();}
 
-        return locationPanel;
+        return leftPanel;
     }
 
     //Add map to main window
     private JPanel addMap() {
         JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(d[0] - 670, d[1] - 260), true);
-        MapTemplate mp = new MapTemplate();
         mp.addPlaceMark(50, 60, "Place 1");
         mp.addPlaceMark(100, 35, "Place 2");
         return wwdPanel;
@@ -168,9 +201,7 @@ public class Home{
         }catch (Exception e) {e.printStackTrace();}
 
         loginButton.addActionListener(e->{
-            UserDetails loginInterface = new Login();
-            loginInterface.setFieldNames(new String[]{"Username", "Password"});
-            loginInterface.createWindow(500,430, "Login", loginInterface.getFieldNames(),200,250);
+            new Login().createLoginInterface();
         });
 
         homeButton.addActionListener(e -> {
@@ -191,7 +222,7 @@ public class Home{
 
         homePanel.add(setTitle(),BorderLayout.NORTH);
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
-        homePanel.add(addSearch(),BorderLayout.WEST);
+        homePanel.add(addLeftPanel(),BorderLayout.WEST);
         homePanel.add(addMap(),BorderLayout.CENTER);
         homePanel.add(addUserHistoryPanel(),BorderLayout.EAST);
 
