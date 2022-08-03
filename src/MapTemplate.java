@@ -25,14 +25,13 @@ import java.awt.BorderLayout;
 
 import java.util.ArrayList;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
     public static WorldWindow wwdPublic;
-    ArrayList <String> placeMarkData = new ArrayList<>();
+    static ArrayList <String> placeMarkData = new ArrayList<>();
+    static ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
+    static final RenderableLayer placeMarkLayer = new RenderableLayer();
 
    public static class MapPanel extends JPanel{
         protected WorldWindow wwd;
@@ -65,6 +64,7 @@ public class MapTemplate {
             this.toolTipController = new ToolTipController(this.getWWD(),AVKey.DISPLAY_NAME, null);
             this.highlightController = new HighlightController(this.getWWD(), SelectEvent.ROLLOVER);
             addViewControlsLayer();
+            addPlaceMarkLayer();
         }
 
         protected WorldWindow createWorldWindow(){
@@ -80,9 +80,14 @@ public class MapTemplate {
         insertBeforeCompass(wwdPublic, viewControlsLayer);
         wwdPublic.addSelectListener(new ViewControlsSelectListener(wwdPublic, viewControlsLayer));
     }
-    public void addPlaceMark(float lat, float lon, String name){
-        final RenderableLayer placeMarkLayer = new RenderableLayer();
 
+    protected static void addPlaceMarkLayer(){
+        placeMarkLayer.setName("placeMarkLayer");
+        insertBeforeCompass(wwdPublic,placeMarkLayer);
+    }
+
+    public void addPlaceMark(float lat, float lon, String name){
+        placeMarkLayer.setName("placeMarkLayer");
         PointPlacemark p = new PointPlacemark(Position.fromDegrees(lat,lon,1000));
         p.setLabelText(name);
         p.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
@@ -91,34 +96,12 @@ public class MapTemplate {
         attributes.setImageAddress("images/locationPin.png");
         p.setAttributes(attributes);
         placeMarkLayer.addRenderable(p);
+        placeMarkPoints.add(p);
 
-        insertBeforeCompass(wwdPublic,placeMarkLayer);
-        new ViewPlaceMarkDetails().getPlaceMarks(p);
-        writeToFile();
+        getPlaceMarks(p);
+        new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
     }
 
-    abstract static class PlaceMarkDetails{
-       abstract void getPlaceMarks(PointPlacemark p);
-    }
-
-    public class ViewPlaceMarkDetails extends PlaceMarkDetails{
-       public void getPlaceMarks(PointPlacemark p){
-           String dataLine = p.getLabelText() + "," + p.getPosition().latitude.toString() + "," + p.getPosition().longitude.toString()+'\n';
-           placeMarkData.add(dataLine);
-       }
-    }
-
-    public void writeToFile(){
-        try{
-            FileWriter placeMarkFileW = new FileWriter("data/PlaceMarkDetails.csv");
-            for(String d: placeMarkData){
-                placeMarkFileW.write(d);
-            }
-            placeMarkFileW.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
     public static void insertBeforeCompass(WorldWindow wwd, Layer layer){
         int compassPosition = 0;
         LayerList layers = wwd.getModel().getLayers();
@@ -129,4 +112,39 @@ public class MapTemplate {
         }
         layers.add(compassPosition,layer);
     }
+
+    public void goTo(double lat, double lon){
+        Position pos = new Position(Position.fromDegrees(lat,lon));
+        wwdPublic.getView().goTo(pos,1000000);
+    }
+
+   private void getPlaceMarks(PointPlacemark p) {
+       double latDeg = p.getPosition().latitude.degrees;
+       double lonDeg = p.getPosition().longitude.degrees;
+
+       String dataLine = String.format("%s,%.2f,%.2f\n",p.getLabelText(),latDeg,lonDeg);//p.getLabelText() + "," + latDeg + "," + lonDeg + '\n';
+       placeMarkData.add(dataLine);
+   }
+
+   public void removePlaceMark(double lat, double lon){
+       Position pos = new Position(Position.fromDegrees(lat, lon,1000));
+
+       try {
+           for (int i = 0; i < placeMarkPoints.size(); i++) {
+               if (placeMarkPoints.get(i).getPosition().equals(pos)) {
+                   placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
+                   placeMarkData.remove(i);
+               }
+           }
+       }catch (IndexOutOfBoundsException e){
+           e.printStackTrace();
+       }
+       new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
+   }
+
+   private class PlaceMarkDetails extends Files.PlaceMarkDetails{
+       void writeToPlaceMarkFile(ArrayList <String> placeMarkList){
+           Files.PlaceMarkDetails.writeToPlaceMarkDetails(placeMarkList);
+       }
+   }
 }
