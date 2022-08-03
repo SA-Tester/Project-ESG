@@ -23,17 +23,14 @@ import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.BorderLayout;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import java.util.ArrayList;
 
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
     public static WorldWindow wwdPublic;
-    ArrayList <String> placeMarkData = new ArrayList<>();
-    ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
+    static ArrayList <String> placeMarkData = new ArrayList<>();
+    static ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
 
    public static class MapPanel extends JPanel{
@@ -102,7 +99,7 @@ public class MapTemplate {
         placeMarkPoints.add(p);
 
         getPlaceMarks(p);
-        writeToFile();
+        new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
     }
 
     public static void insertBeforeCompass(WorldWindow wwd, Layer layer){
@@ -116,40 +113,38 @@ public class MapTemplate {
         layers.add(compassPosition,layer);
     }
 
+    public void goTo(double lat, double lon){
+        Position pos = new Position(Position.fromDegrees(lat,lon));
+        wwdPublic.getView().goTo(pos,1000000);
+    }
+
    private void getPlaceMarks(PointPlacemark p) {
        double latDeg = p.getPosition().latitude.degrees;
        double lonDeg = p.getPosition().longitude.degrees;
 
-       String dataLine = p.getLabelText() + "," + latDeg + "," + lonDeg + '\n';
+       String dataLine = String.format("%s,%.2f,%.2f\n",p.getLabelText(),latDeg,lonDeg);//p.getLabelText() + "," + latDeg + "," + lonDeg + '\n';
        placeMarkData.add(dataLine);
    }
 
-   public void removePlaceMark(float lat, float lon){
+   public void removePlaceMark(double lat, double lon){
        Position pos = new Position(Position.fromDegrees(lat, lon,1000));
 
-       for(int i=0; i<placeMarkPoints.size(); i++){
-           if(placeMarkPoints.get(i).getPosition().equals(pos)){
-               placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
-               placeMarkData.remove(i);
+       try {
+           for (int i = 0; i < placeMarkPoints.size(); i++) {
+               if (placeMarkPoints.get(i).getPosition().equals(pos)) {
+                   placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
+                   placeMarkData.remove(i);
+               }
            }
+       }catch (IndexOutOfBoundsException e){
+           e.printStackTrace();
        }
-       writeToFile();
+       new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
    }
 
-    private void writeToFile(){
-        try{
-            FileWriter placeMarkFileW = new FileWriter("data/PlaceMarkDetails.csv");
-            for(String d: placeMarkData){
-                placeMarkFileW.write(d);
-            }
-            placeMarkFileW.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void goTo(double lat, double lon){
-       Position pos = new Position(Position.fromDegrees(lat,lon));
-        wwdPublic.getView().goTo(pos,1000000);
-    }
+   private class PlaceMarkDetails extends Files.PlaceMarkDetails{
+       void writeToPlaceMarkFile(ArrayList <String> placeMarkList){
+           Files.PlaceMarkDetails.writeToPlaceMarkDetails(placeMarkList);
+       }
+   }
 }
