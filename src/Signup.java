@@ -9,9 +9,9 @@ import javax.swing.border.Border;
 import javax.swing.WindowConstants;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.DefaultComboBoxModel;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 
 import java.util.Objects;
@@ -26,12 +26,15 @@ public class Signup extends UserInterfaces{
     private JTextField usernameTextBox;
     private JPasswordField inputPasswordTextBox;
     private JPasswordField confirmPasswordFieldTextBox;
-    private JTextField regionalOfficeTextBox;
-    private JComboBox privilegeTypeCombo;
+    private JComboBox<String> provinceCombo;
+    private JComboBox<String> districtCombo;
+    private JComboBox<String> cityCombo;
+    private JTextField gramaNiladhariTextBox;
+    private JComboBox<String> privilegeTypeCombo;
     private JButton signup;
     private JButton cancel;
-    final private int width = 650;
-    final private int height = 750;
+    final private int width = 800;
+    final private int height = 950;
     int[] dim = new Home().getScreenDimensions();
 
     @Override
@@ -42,18 +45,31 @@ public class Signup extends UserInterfaces{
         usernameTextBox = createJTextField(usernameTextBox,180);
         inputPasswordTextBox = createJPasswordField(inputPasswordTextBox,240);
         confirmPasswordFieldTextBox = createJPasswordField(confirmPasswordFieldTextBox,300);
-        regionalOfficeTextBox = createJTextField(regionalOfficeTextBox,360);
+        provinceCombo = createJComboBox(provinces, 360);
+        districtCombo = createJComboBox(getDistricts(provinceCombo.getSelectedIndex()),420);
+        cityCombo = createJComboBox(getCities(Objects.requireNonNull(districtCombo.getSelectedItem()).toString()), 480);
+        gramaNiladhariTextBox = createJTextField(gramaNiladhariTextBox,540);
         String[] privilegeTypes = {"Admin", "User"};
-        privilegeTypeCombo = createJComboBox(privilegeTypeCombo,privilegeTypes);
-        signup = createJButton(signup,"Sign Up",50,465);
-        cancel = createJButton(cancel,"Cancel",width-200,465);
+        privilegeTypeCombo = createJComboBox(privilegeTypes,600);
+
+        signup = createJButton(signup,"Sign Up",50,650);
+        cancel = createJButton(cancel,"Cancel",width-200,650);
 
         int yHeight = 0;
-        String[] labelNameList = {"Name","Address","Mobile","Username","Password","Confirm Password","Closest Regional Office", "Privilege Type"};
+        String[] labelNameList = {"Name","Address","Mobile","Username","Password","Confirm Password", "Province", "District", "City", "Grama-Niladhari Division", "Privilege Type"};
         for(String s: labelNameList){
             signupPanel.add(createJLabel(s,yHeight));
             yHeight += 60;
         }
+
+        //Override Districts and Cities Combo Box depending on the input of Province Combo
+        provinceCombo.addActionListener(e -> {
+            districtCombo.setModel(new DefaultComboBoxModel<>(getDistricts(provinceCombo.getSelectedIndex())));
+            cityCombo.setModel(new DefaultComboBoxModel<>(getCities(districtCombo.getSelectedItem().toString())));
+        });
+
+        //Override Cities Combo Box depending on the input of Districts Combo
+        districtCombo.addActionListener(e -> cityCombo.setModel(new DefaultComboBoxModel<>(getCities(districtCombo.getSelectedItem().toString()))));
 
         signup.addActionListener(e -> {
             char[] passIn = inputPasswordTextBox.getPassword();
@@ -66,16 +82,22 @@ public class Signup extends UserInterfaces{
                 String address = addressTextBox.getText().strip();
                 String mobile = mobileTextBox.getText().strip();
                 String username = usernameTextBox.getText().strip();
-                String regionalOffice = regionalOfficeTextBox.getText().strip();
+                String province = Objects.requireNonNull(Objects.requireNonNull(provinceCombo.getSelectedItem()).toString());
+                String district = Objects.requireNonNull(districtCombo.getSelectedItem().toString());
+                String city = Objects.requireNonNull(Objects.requireNonNull(cityCombo.getSelectedItem()).toString());
+                String gNOffice = gramaNiladhariTextBox.getText().strip();
                 String privilegeType = Objects.requireNonNull(privilegeTypeCombo.getSelectedItem()).toString().toLowerCase();
 
                 if(privilegeType.equals("admin")){
-                    String inputEmpID = JOptionPane.showInputDialog(signupFrame,"Enter Employee ID: ","Verify Admin Privileges",JOptionPane.QUESTION_MESSAGE);
-                    String inputOfficeCode = JOptionPane.showInputDialog(signupFrame,"Enter Office Code: ","Verify Admin Privileges",JOptionPane.QUESTION_MESSAGE);
-                    String validationMsg = new infoAdmin().checkAdminInfo(inputEmpID,inputOfficeCode);
+                    String validationMsg = "INVALID";
+                    try {
+                        String inputEmpID = JOptionPane.showInputDialog(signupFrame, "Enter Employee ID: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
+                        String inputOfficeCode = JOptionPane.showInputDialog(signupFrame, "Enter Office Code: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
+                        validationMsg = new infoAdmin().checkAdminInfo(inputEmpID, inputOfficeCode);
+                    }catch (NullPointerException ne){ne.printStackTrace();}
 
                     if(validationMsg.equals("VALID")){
-                        new intoSignUp().addToSignUpFile(name,address,mobile,username,password1,regionalOffice,privilegeType);
+                        new intoSignUp().addToSignUpFile(name,address,mobile,username,province,district,city,gNOffice);
                         new intoLogin().addToLoginFile(username,password1,privilegeType);
                         signupFrame.dispose();
                         new Login().createJFrame();
@@ -85,7 +107,7 @@ public class Signup extends UserInterfaces{
                     }
                 }
                 else{
-                    new intoSignUp().addToSignUpFile(name,address,mobile,username,password1,regionalOffice,privilegeType);
+                    new intoSignUp().addToSignUpFile(name,address,mobile,username,province,district,city,gNOffice);
                     new intoLogin().addToLoginFile(username,password1,privilegeType);
                     signupFrame.dispose();
                     new Login().createJFrame();
@@ -105,7 +127,10 @@ public class Signup extends UserInterfaces{
         signupPanel.add(usernameTextBox);
         signupPanel.add(inputPasswordTextBox);
         signupPanel.add(confirmPasswordFieldTextBox);
-        signupPanel.add(regionalOfficeTextBox);
+        signupPanel.add(provinceCombo);
+        signupPanel.add(districtCombo);
+        signupPanel.add(cityCombo);
+        signupPanel.add(gramaNiladhariTextBox);
         signupPanel.add(privilegeTypeCombo);
         signupPanel.add(signup);
         signupPanel.add(cancel);
@@ -124,13 +149,12 @@ public class Signup extends UserInterfaces{
         signupFrame.setSize(width,height);
         signupFrame.setLocation((dim[0]-width)/2, (dim[1]-height)/2);
         signupFrame.setVisible(true);
-        signupFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        signupFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
     @Override
     JLabel createTitle() {
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setBounds(width/2-35,20,width, 40);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setBounds(width/2-40,20,width, 40);
         titleLabel.setFont(new Font("Arial", Font.BOLD,35));
         titleLabel.setForeground(Color.WHITE);
         return titleLabel;
@@ -141,7 +165,7 @@ public class Signup extends UserInterfaces{
         JLabel label = new JLabel(labelName+": ");
         label.setFont(new Font("Arial",Font.BOLD,20));
         label.setForeground(Color.WHITE);
-        label.setBounds(50,100+y,250,30);
+        label.setBounds(50,100+y,350,30);
         return label;
     }
 
@@ -149,7 +173,7 @@ public class Signup extends UserInterfaces{
     JTextField createJTextField(JTextField textField, int y) {
         textField = new JTextField();
         textField.setFont(new Font("Arial",Font.PLAIN,20));
-        textField.setBounds(300,100+y,300,30);
+        textField.setBounds(400,100+y,350,30);
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         textField.setBorder(border);
         return textField;
@@ -159,7 +183,7 @@ public class Signup extends UserInterfaces{
     JPasswordField createJPasswordField(JPasswordField passField, int y) {
         passField = new JPasswordField();
         passField.setFont(new Font("Arial",Font.PLAIN,20));
-        passField.setBounds(300,100+y,300,30);
+        passField.setBounds(400,100+y,350,30);
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         passField.setBorder(border);
         return passField;
@@ -175,18 +199,18 @@ public class Signup extends UserInterfaces{
         return btn;
     }
 
-    JComboBox createJComboBox(JComboBox comboBox, String[] list){
-        comboBox = new JComboBox(list);
+    JComboBox<String> createJComboBox(String[] list, int yHeight){
+        JComboBox<String> comboBox = new JComboBox<>(list);
         comboBox.setFont(new Font("Arial",Font.PLAIN,20));
-        comboBox.setBounds(300,520,300,30);
+        comboBox.setBounds(400,100+yHeight,350,30);
         Border border = BorderFactory.createLineBorder(Color.WHITE,1);
         comboBox.setBorder(border);
         return comboBox;
     }
 
     private static class intoSignUp extends Files.SignUpDetails{
-        void addToSignUpFile(String name, String address, String mobile, String username,String password, String regionalOffice, String privilegeType){
-            Files.SignUpDetails.writeToSignUpDetails(name,address,mobile,username,password,regionalOffice,privilegeType);
+        void addToSignUpFile(String name, String address, String mobile, String username,String province, String district, String city, String gNOffice){
+            Files.SignUpDetails.writeToSignUpDetails(name,address,mobile,username,province,district,city,gNOffice);
         }
     }
 

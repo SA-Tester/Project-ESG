@@ -52,10 +52,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Home{
-    static JFrame homeFrame; //Identifier of Main Window
+    JFrame homeFrame; //Identifier of Main Window
     protected int[] dim = getScreenDimensions();////Array holding screen width and height. Only used by hte Home class
     static MapTemplate mp = new MapTemplate();
-    static Login login = new Login();
 
     int[] getScreenDimensions(){
         int[] dim = new int[2];
@@ -95,19 +94,19 @@ public class Home{
     }
 
     public static class Left{
-        static JPanel leftPanel = new JPanel();
-        public static JComboBox<Object> locationList = new JComboBox<>();
-        public static ArrayList<String> placeMarkNameList = new ArrayList<>();
+        public static JButton markAsCompleted = new JButton();
         private static double selectedLat;
         private static double selectedLon;
-        public static JButton markAsCompleted = new JButton();
 
-        public JPanel addLeftPanel(){
+        private JPanel addLeftPanel(){
+            JPanel leftPanel = new JPanel();
             leftPanel.setBackground(Color.DARK_GRAY);
             leftPanel.setPreferredSize(new Dimension(300,800));//d[1]-200
             leftPanel.setLayout(null);
             leftPanel.setBorder(new EmptyBorder(15,15,15,15));
 
+            JComboBox<Object> locationList = new JComboBox<>();
+            ArrayList<String> placeMarkNameList = new ArrayList<>();
             ArrayList<String> placeMarkLatList = new ArrayList<>();
             ArrayList<String> placeMarkLonList = new ArrayList<>();
 
@@ -175,11 +174,18 @@ public class Home{
     }
 
     //Add user history panel to main window
-    private JPanel addUserHistoryPanel(){
-        JPanel userPanel = new JPanel();
-        userPanel.setBackground(Color.DARK_GRAY);
-        userPanel.setPreferredSize(new Dimension(300,dim[1]-200));
-        return userPanel;
+    public static class Right{
+        public static JButton postARequest = new JButton();
+        private JPanel addRightPanel(){
+            JPanel rightPanel = new JPanel();
+            rightPanel.setBackground(Color.DARK_GRAY);
+            rightPanel.setLayout(null);
+            rightPanel.setPreferredSize(new Dimension(300,800)); //dim[1] - 200
+            postARequest.addActionListener(e -> new Requests().createJFrame());
+            rightPanel.add(postARequest);
+
+            return rightPanel;
+        }
     }
 
     //Add Bottom Bar to main window
@@ -215,12 +221,12 @@ public class Home{
         }catch (Exception e) {e.printStackTrace();}
 
         loginButton.addActionListener(e->{
-            login.createJFrame();
+            new Login().createJFrame();
         });
 
         homeButton.addActionListener(e -> {
-            homeFrame.dispose();
-            createHomeInterface();
+            this.homeFrame.dispose();
+            new Home().createHomeInterface();
         });
 
         return bottomPanel;
@@ -238,7 +244,7 @@ public class Home{
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
         homePanel.add(new Left().addLeftPanel(),BorderLayout.WEST);
         homePanel.add(addMap(),BorderLayout.CENTER);
-        homePanel.add(addUserHistoryPanel(),BorderLayout.EAST);
+        homePanel.add(new Right().addRightPanel(),BorderLayout.EAST);
 
         homeFrame = new JFrame();
         homeFrame.setSize(dim[0],dim[1]);
