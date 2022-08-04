@@ -26,7 +26,6 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.BorderFactory;
@@ -46,11 +45,17 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
+import java.io.File;
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
 public class Home{
-    //Identifier of Main Window
-    JFrame homeFrame;
-    //Array holding screen width and height. Only used by hte Home class
-    protected int[] d = getScreenDimensions();
+    JFrame homeFrame; //Identifier of Main Window
+    protected int[] dim = getScreenDimensions();////Array holding screen width and height. Only used by hte Home class
+    static MapTemplate mp = new MapTemplate();
+
     int[] getScreenDimensions(){
         int[] dim = new int[2];
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -77,7 +82,7 @@ public class Home{
     private JPanel setTitle(){
         JPanel titleBar = new JPanel();
         titleBar.setBackground(Color.BLACK);
-        titleBar.setPreferredSize(new Dimension(d[0],100)); //Runtime Polymorphism: Because setSize also take new Dimension(double, double) inputs
+        titleBar.setPreferredSize(new Dimension(dim[0],100)); //Runtime Polymorphism: Because setSize also take new Dimension(double, double) inputs
         titleBar.setLayout(new BoxLayout(titleBar,BoxLayout.Y_AXIS)); //Used to add content vertically to the titleBar
         titleBar.setBorder(new EmptyBorder(15,15,15,15)); //Set Padding to Panel
 
@@ -88,58 +93,106 @@ public class Home{
         return titleBar;
     }
 
-    //Add the Search Panel to the main window
-    private JPanel addSearch(){
-        //Create JPanel containing Search and Admin Buttons
-        JPanel locationPanel = new JPanel();
-        locationPanel.setBackground(Color.DARK_GRAY);
-        locationPanel.setPreferredSize(new Dimension(300,d[1]-200));
-        locationPanel.setLayout(null);
-        locationPanel.setBorder(new EmptyBorder(15,15,15,15));
+    public static class Left{
+        public static JButton markAsCompleted = new JButton();
+        private static double selectedLat;
+        private static double selectedLon;
 
-        String[] placeMarkList = {"hello","yellow"};
-        JComboBox<String> locationList = new JComboBox<>(placeMarkList);
-        locationList.setBounds(20, 20, 200, 40);
-        locationList.setFont(new Font("Arial",Font.PLAIN,18));
-        locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
-        locationPanel.add(locationList);
+        private JPanel addLeftPanel(){
+            JPanel leftPanel = new JPanel();
+            leftPanel.setBackground(Color.DARK_GRAY);
+            leftPanel.setPreferredSize(new Dimension(300,800));//d[1]-200
+            leftPanel.setLayout(null);
+            leftPanel.setBorder(new EmptyBorder(15,15,15,15));
 
-        JButton searchButton = new JButton();
-        searchButton.setSize(50,41);
-        searchButton.setLocation(230,20);
-        searchButton.setBackground(Color.WHITE);
-        locationPanel.add(searchButton);
+            JComboBox<Object> locationList = new JComboBox<>();
+            ArrayList<String> placeMarkNameList = new ArrayList<>();
+            ArrayList<String> placeMarkLatList = new ArrayList<>();
+            ArrayList<String> placeMarkLonList = new ArrayList<>();
 
-        try{
-            Icon searchIcon = new ImageIcon("images/search.png");
-            searchButton.setIcon(searchIcon);
-        }catch (Exception e){e.printStackTrace();}
+            try {
+                File placeMarks = new File("data/PlaceMarkDetails.csv");
+                Scanner scanner = new Scanner(placeMarks);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    placeMarkNameList.add(data[0]);
+                    placeMarkLatList.add(data[1]);
+                    placeMarkLonList.add(data[2]);
+                }
+                scanner.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
 
-        return locationPanel;
+            for(String s: placeMarkNameList){
+                locationList.addItem(s);
+            }
+            locationList.setBounds(20, 20, 200, 40);
+            locationList.setFont(new Font("Arial",Font.PLAIN,18));
+            locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
+            leftPanel.add(locationList);
+
+            JButton searchButton = new JButton();
+            searchButton.setSize(50,41);
+            searchButton.setLocation(230,20);
+            searchButton.setBackground(Color.WHITE);
+            leftPanel.add(searchButton);
+
+            searchButton.addActionListener(e -> {
+                if(locationList.getSelectedIndex() > -1){
+                    selectedLat = Double.parseDouble(placeMarkLatList.get(locationList.getSelectedIndex()));
+                    selectedLon = Double.parseDouble(placeMarkLonList.get(locationList.getSelectedIndex()));
+                    mp.goTo(selectedLat,selectedLon);
+                }
+            });
+
+            try{
+                Icon searchIcon = new ImageIcon("images/search.png");
+                searchButton.setIcon(searchIcon);
+            }catch (Exception e){e.printStackTrace();}
+
+            markAsCompleted.addActionListener(e -> {
+                if (placeMarkNameList.size() > 0) {
+                    int index = locationList.getSelectedIndex();
+                    mp.removePlaceMark(selectedLat, selectedLon);
+                    placeMarkNameList.remove(index);
+                    locationList.removeItem(locationList.getSelectedItem());
+                }
+            });
+            leftPanel.add(markAsCompleted);
+
+            return leftPanel;
+        }
     }
 
     //Add map to main window
     private JPanel addMap() {
-        JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(d[0] - 670, d[1] - 260), true);
-        MapTemplate mp = new MapTemplate();
+        JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(dim[0] - 670, dim[1] - 260), true);
         mp.addPlaceMark(50, 60, "Place 1");
         mp.addPlaceMark(100, 35, "Place 2");
         return wwdPanel;
     }
 
     //Add user history panel to main window
-    private JPanel addUserHistoryPanel(){
-        JPanel userPanel = new JPanel();
-        userPanel.setBackground(Color.DARK_GRAY);
-        userPanel.setPreferredSize(new Dimension(300,d[1]-200));
-        return userPanel;
+    public static class Right{
+        public static JButton postARequest = new JButton();
+        private JPanel addRightPanel(){
+            JPanel rightPanel = new JPanel();
+            rightPanel.setBackground(Color.DARK_GRAY);
+            rightPanel.setLayout(null);
+            rightPanel.setPreferredSize(new Dimension(300,800)); //dim[1] - 200
+            postARequest.addActionListener(e -> new Requests().createJFrame());
+            rightPanel.add(postARequest);
+
+            return rightPanel;
+        }
     }
 
     //Add Bottom Bar to main window
     private JPanel addBottomBar(){
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBackground(Color.GRAY);
-        bottomPanel.setPreferredSize(new Dimension(d[0],100));
+        bottomPanel.setPreferredSize(new Dimension(dim[0],100));
         bottomPanel.setLayout(new BorderLayout(5,0));
 
         JButton homeButton = new JButton();
@@ -148,7 +201,7 @@ public class Home{
         bottomPanel.add(homeButton,BorderLayout.WEST);
 
         JTextArea console = new JTextArea();
-        console.setPreferredSize(new Dimension(d[0]-200,80));
+        console.setPreferredSize(new Dimension(dim[0]-200,80));
         console.setBackground(Color.BLACK);
         console.setForeground(Color.WHITE);
         console.setBorder(new EmptyBorder(20,20,20,20));
@@ -168,14 +221,12 @@ public class Home{
         }catch (Exception e) {e.printStackTrace();}
 
         loginButton.addActionListener(e->{
-            UserDetails loginInterface = new Login();
-            loginInterface.setFieldNames(new String[]{"Username", "Password"});
-            loginInterface.createWindow(500,430, "Login", loginInterface.getFieldNames(),200,250);
+            new Login().createJFrame();
         });
 
         homeButton.addActionListener(e -> {
-            homeFrame.dispose();
-            createHomeInterface();
+            this.homeFrame.dispose();
+            new Home().createHomeInterface();
         });
 
         return bottomPanel;
@@ -191,9 +242,9 @@ public class Home{
 
         homePanel.add(setTitle(),BorderLayout.NORTH);
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
-        homePanel.add(addSearch(),BorderLayout.WEST);
+        homePanel.add(new Left().addLeftPanel(),BorderLayout.WEST);
         homePanel.add(addMap(),BorderLayout.CENTER);
-        homePanel.add(addUserHistoryPanel(),BorderLayout.EAST);
+        homePanel.add(new Right().addRightPanel(),BorderLayout.EAST);
 
         homeFrame = new JFrame();
         homeFrame.setSize(dim[0],dim[1]);
