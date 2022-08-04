@@ -52,10 +52,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Home{
-    static JFrame homeFrame; //Identifier of Main Window
+    JFrame homeFrame; //Identifier of Main Window
     protected int[] dim = getScreenDimensions();////Array holding screen width and height. Only used by hte Home class
     static MapTemplate mp = new MapTemplate();
-    static Login login = new Login();
 
     int[] getScreenDimensions(){
         int[] dim = new int[2];
@@ -222,11 +221,11 @@ public class Home{
         }catch (Exception e) {e.printStackTrace();}
 
         loginButton.addActionListener(e->{
-            login.createJFrame();
+            new Login().createJFrame();
         });
 
         homeButton.addActionListener(e -> {
-            homeFrame.dispose();
+            this.homeFrame.dispose();
             new Home().createHomeInterface();
         });
 

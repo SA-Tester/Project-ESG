@@ -149,7 +149,7 @@ public class Signup extends UserInterfaces{
         signupFrame.setSize(width,height);
         signupFrame.setLocation((dim[0]-width)/2, (dim[1]-height)/2);
         signupFrame.setVisible(true);
-        signupFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        signupFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
     @Override
     JLabel createTitle() {

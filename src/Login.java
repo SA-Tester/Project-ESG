@@ -82,7 +82,7 @@ public class Login extends UserInterfaces{
         loginFrame.setSize(width,height);
         loginFrame.setLocation((dim[0]-width)/2, (dim[1]-height)/2);
         loginFrame.setVisible(true);
-        loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        loginFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     @Override
