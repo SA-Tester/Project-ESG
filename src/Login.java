@@ -1,13 +1,5 @@
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.BorderFactory;
-import javax.swing.JPasswordField;
+import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.WindowConstants;
-import javax.swing.JOptionPane;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -17,15 +9,13 @@ import java.awt.event.MouseListener;
 import java.awt.Cursor;
 
 public class Login extends UserInterfaces{
-    JFrame loginFrame = new JFrame();
-    JPanel loginPanel = new JPanel();
+    static JFrame loginFrame = new JFrame();
+    static JPanel loginPanel = new JPanel();
     final private static String title = "Login";
     private JTextField userNameTextBox;
     private String inputUsername;
     private JPasswordField passwordTextBox;
     private String inputPassword;
-    private JLabel forgotPassword;
-    private JLabel needToSignUp;
     private JButton login;
     private JButton cancel;
     final private int width = 500;
@@ -37,8 +27,8 @@ public class Login extends UserInterfaces{
     JPanel createPanel() {
         userNameTextBox = createJTextField(userNameTextBox, 0);
         passwordTextBox = createJPasswordField(passwordTextBox, 60);
-        forgotPassword = new Hyperlinks().createHyperLink(forgotPassword,"Forgot Password?",50);
-        needToSignUp = new Hyperlinks().createHyperLink(needToSignUp,"SignUp",width-109);
+        JLabel forgotPassword = new Hyperlinks().createHyperLink("Forgot Password?", 50);
+        JLabel needToSignUp = new Hyperlinks().createHyperLink("SignUp", width - 109);
         login = createJButton(login,"Login",50,130);
         cancel = createJButton(cancel,"Cancel",width-200,130);
 
@@ -49,12 +39,14 @@ public class Login extends UserInterfaces{
 
             msg = new VerifyLogin().checkLogin();
             if(msg.equals("ADMIN PRIVILEGES")){
-                //Add mark as completed button and user history
+                //Add User privileges and user history
                 addMarkAsCompleted();
+                addPostARequest();
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
-                //add user history panel
+                //add user history panel and history
+                addPostARequest();
                 loginFrame.dispose();
             }
             else{
@@ -143,9 +135,14 @@ public class Login extends UserInterfaces{
         return btn;
     }
 
-    private class Hyperlinks extends JLabel implements MouseListener {
-        protected JLabel createHyperLink(JLabel hyperLink, String linkTitle, int x){
-            hyperLink = new JLabel(linkTitle);
+    @Override
+    JComboBox<String> createJComboBox(String[] list, int yHeight) {
+        return null;
+    }
+
+    private static class Hyperlinks extends JLabel implements MouseListener {
+        protected JLabel createHyperLink(String linkTitle, int x){
+            JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
             hyperLink.setForeground(Color.BLUE);
             hyperLink.setFont(new Font("Arial", Font.PLAIN,18));
@@ -167,7 +164,6 @@ public class Login extends UserInterfaces{
                     //Code to change the Password
                 }
             }
-
         }
         public void mouseEntered(MouseEvent e){}
         public void mouseExited(MouseEvent e){}
@@ -183,6 +179,16 @@ public class Login extends UserInterfaces{
         Home.Left.markAsCompleted.setForeground(Color.WHITE);
         Home.Left.markAsCompleted.setFont(new Font("Arial", Font.PLAIN, 18));
         Home.Left.markAsCompleted.setBorder(BorderFactory.createBevelBorder(1));
+    }
+
+    private void addPostARequest(){
+        Home.Right.postARequest.setText("Post");
+        Home.Right.postARequest.setBounds(110, dim[1] - 350, 100, 40);
+        Color green = new Color(50, 145, 35);
+        Home.Right.postARequest.setBackground(green);
+        Home.Right.postARequest.setForeground(Color.WHITE);
+        Home.Right.postARequest.setFont(new Font("Arial", Font.PLAIN, 20));
+        Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
     }
 
     protected class VerifyLogin extends Files.LoginInfo{

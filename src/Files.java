@@ -46,8 +46,9 @@ public class Files {
     protected static class SignUpDetails{
         //static void readSignUpDetails(){}
 
-        protected static void writeToSignUpDetails(String name, String address, String mobile, String username, String password, String regionalOffice, String privilegeType){
-            String formattedString = String.format("%s,%s,%s,%s,%s,%s,%s\n",name,address,mobile,username,password,regionalOffice,privilegeType);
+        //name,address,mobile,username,password1,province, district, city, gNOffice,privilegeType
+        protected static void writeToSignUpDetails(String name, String address, String mobile, String username, String province, String district, String city , String gNOffice){
+            String formattedString = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",name,address,mobile,username,province,district,city,gNOffice);
 
             try{
                 FileWriter signUpInfoFile = new FileWriter("data/SignUpInfo.csv",true);
@@ -95,6 +96,45 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    protected static class CitiesInDistricts{
+        private static final ArrayList <String> cityNames = new ArrayList<>();
+        private static final ArrayList <String> cityLatitudes = new ArrayList<>();
+        private static final ArrayList <String> cityLongitudes = new ArrayList<>();
+        static void readFromCities(String districtName){
+            String pathName = "data/cities/" + districtName + ".csv";
+            cityNames.clear();
+            cityLatitudes.clear();
+            cityLongitudes.clear();
+
+            try {
+                File cityFile = new File(pathName);
+                Scanner scanner = new Scanner(cityFile);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    cityNames.add(data[0]);
+                    cityLatitudes.add(data[1]);
+                    cityLongitudes.add(data[2]);
+                }
+                scanner.close();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        static ArrayList<String> getCityNames(){
+            return cityNames;
+        }
+
+        static ArrayList<String> getCityLatitudes(){
+            return cityLatitudes;
+        }
+
+        static ArrayList<String> getCityLongitudes(){
+            return cityLongitudes;
         }
     }
 }
