@@ -37,7 +37,6 @@ import javax.swing.Icon;
 import javax.swing.WindowConstants;
 import javax.swing.JComboBox;
 
-
 import java.awt.Component;
 import java.awt.Color;
 import java.awt.Font;
@@ -45,11 +44,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
-import java.io.File;
-import java.io.IOException;
-
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Home{
     JFrame homeFrame; //Identifier of Main Window
@@ -95,8 +90,17 @@ public class Home{
 
     public static class Left{
         public static JButton markAsCompleted = new JButton();
+        public static JComboBox<Object> locationList;
+        public static ArrayList<String> placeMarkNameList;
+        public static  ArrayList<String> placeMarkLatList;
+        public static ArrayList<String> placeMarkLonList;
+        private static JTextArea completedActions;
         private static double selectedLat;
         private static double selectedLon;
+
+        public static JTextArea getJTextArea(){
+            return completedActions;
+        }
 
         private JPanel addLeftPanel(){
             JPanel leftPanel = new JPanel();
@@ -105,25 +109,12 @@ public class Home{
             leftPanel.setLayout(null);
             leftPanel.setBorder(new EmptyBorder(15,15,15,15));
 
-            JComboBox<Object> locationList = new JComboBox<>();
-            ArrayList<String> placeMarkNameList = new ArrayList<>();
-            ArrayList<String> placeMarkLatList = new ArrayList<>();
-            ArrayList<String> placeMarkLonList = new ArrayList<>();
+            placeMarkNameList = PlaceMarkDetails.placeMarkNameList;
+            placeMarkLatList = PlaceMarkDetails.placeMarkLatList;
+            placeMarkLonList = PlaceMarkDetails.placeMarkLonList;
 
-            try {
-                File placeMarks = new File("data/PlaceMarkDetails.csv");
-                Scanner scanner = new Scanner(placeMarks);
-                while(scanner.hasNextLine()){
-                    String[] data = scanner.nextLine().split(",");
-                    placeMarkNameList.add(data[0]);
-                    placeMarkLatList.add(data[1]);
-                    placeMarkLonList.add(data[2]);
-                }
-                scanner.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-
+            locationList = new JComboBox<>();
+            PlaceMarkDetails.updatePlaceMarkCombo();
             for(String s: placeMarkNameList){
                 locationList.addItem(s);
             }
@@ -137,6 +128,17 @@ public class Home{
             searchButton.setLocation(230,20);
             searchButton.setBackground(Color.WHITE);
             leftPanel.add(searchButton);
+
+            completedActions = new JTextArea();
+            completedActions.setBounds(20,80,260,720);//260,650
+            completedActions.setBackground(Color.BLACK);
+            completedActions.setForeground(Color.GREEN);
+            completedActions.setBorder(new EmptyBorder(20,20,20,20));
+            completedActions.setFont(new Font("Arial", Font.PLAIN, 17));
+            completedActions.setText("Latest Completed Actions");
+            completedActions.append("\n\nDate: 06/08/2022\n");
+            completedActions.append("Qty " + " Item " + " Transferred\n\n");
+            leftPanel.add(completedActions);
 
             searchButton.addActionListener(e -> {
                 if(locationList.getSelectedIndex() > -1){
@@ -156,6 +158,8 @@ public class Home{
                     int index = locationList.getSelectedIndex();
                     mp.removePlaceMark(selectedLat, selectedLon);
                     placeMarkNameList.remove(index);
+                    placeMarkLatList.remove(index);
+                    placeMarkLonList.remove(index);
                     locationList.removeItem(locationList.getSelectedItem());
                 }
             });
@@ -168,8 +172,11 @@ public class Home{
     //Add map to main window
     private JPanel addMap() {
         JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(dim[0] - 670, dim[1] - 260), true);
-        mp.addPlaceMark(50, 60, "Place 1");
-        mp.addPlaceMark(100, 35, "Place 2");
+        for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
+            mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
+                    PlaceMarkDetails.placeMarkNameList.get(i), false);
+        }
+
         return wwdPanel;
     }
 
@@ -180,10 +187,10 @@ public class Home{
             JPanel rightPanel = new JPanel();
             rightPanel.setBackground(Color.DARK_GRAY);
             rightPanel.setLayout(null);
-            rightPanel.setPreferredSize(new Dimension(300,800)); //dim[1] - 200
+            rightPanel.setPreferredSize(new Dimension(300,800));
+
             postARequest.addActionListener(e -> new Requests().createJFrame());
             rightPanel.add(postARequest);
-
             return rightPanel;
         }
     }
@@ -220,9 +227,7 @@ public class Home{
             loginButton.setIcon(loginIcon);
         }catch (Exception e) {e.printStackTrace();}
 
-        loginButton.addActionListener(e->{
-            new Login().createJFrame();
-        });
+        loginButton.addActionListener(e-> new Login().createJFrame());
 
         homeButton.addActionListener(e -> {
             this.homeFrame.dispose();
@@ -243,7 +248,7 @@ public class Home{
         homePanel.add(setTitle(),BorderLayout.NORTH);
         homePanel.add(addBottomBar(),BorderLayout.SOUTH);
         homePanel.add(new Left().addLeftPanel(),BorderLayout.WEST);
-        homePanel.add(addMap(),BorderLayout.CENTER);
+        //homePanel.add(addMap(),BorderLayout.CENTER);
         homePanel.add(new Right().addRightPanel(),BorderLayout.EAST);
 
         homeFrame = new JFrame();
@@ -252,5 +257,14 @@ public class Home{
         homeFrame.add(homePanel);
         homeFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         homeFrame.setVisible(true);
+    }
+
+    public static class PlaceMarkDetails extends Files.PlaceMarkDetails{
+        static ArrayList <String> placeMarkNameList = Files.PlaceMarkDetails.placeMarkNameList;
+        static ArrayList <String> placeMarkLatList = Files.PlaceMarkDetails.placeMarkLatList;
+        static ArrayList <String> placeMarkLonList = Files.PlaceMarkDetails.placeMarkLonList;
+        static void updatePlaceMarkCombo(){
+            Files.PlaceMarkDetails.readFromPlaceMarkDetails();
+        }
     }
 }

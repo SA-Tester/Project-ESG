@@ -41,10 +41,80 @@ public class Files {
                 e.printStackTrace();
             }
         }
+
+        protected static void updateCurrentLogin(String username){
+            try{
+                FileWriter currentLoginFile = new FileWriter("data/Current_Login.csv",true);
+                String formattedString = String.format("%s\n",username);
+                currentLoginFile.append(formattedString);
+                currentLoginFile.close();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        protected static String getCurrentLogin(){
+            String data = null;
+            try{
+                File currentLoginFile = new File("data/Current_Login.csv");
+                Scanner scanner = new Scanner(currentLoginFile);
+                while(scanner.hasNextLine()){
+                    data = scanner.nextLine();
+                }
+                scanner.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return data;
+        }
     }
 
     protected static class SignUpDetails{
-        //static void readSignUpDetails(){}
+        private static ArrayList <String> storedUsernames = new ArrayList<>();
+        private static String userProvince;
+        private static String userDistrict;
+        private static String userCity;
+        static void readSignUpDetails(String username){
+            try{
+                File signUpFile = new File("data/SignUpInfo.csv");
+                Scanner scanner = new Scanner(signUpFile);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    storedUsernames.add(data[3]);
+                    if(data[3].equals(username)){
+                        userProvince = data[4];
+                        userDistrict = data[5];
+                        userCity = data[6];
+                    }
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        static ArrayList<String> checkValidityOfUsernames(){
+            try{
+                File signUpFile = new File("data/SignUpInfo.csv");
+                Scanner scanner = new Scanner(signUpFile);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    storedUsernames.add(data[3]);
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return storedUsernames;
+        }
+        static String getUserProvince(){
+            return userProvince;
+        }
+        static String getUserDistrict(){
+            return userDistrict;
+        }
+        static String getUserCity(){
+            return userCity;
+        }
 
         //name,address,mobile,username,password1,province, district, city, gNOffice,privilegeType
         protected static void writeToSignUpDetails(String name, String address, String mobile, String username, String province, String district, String city , String gNOffice){
@@ -79,12 +149,30 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
-
             return msg;
         }
     }
     protected static class PlaceMarkDetails{
-        //static void readPlaceMarkDetails(){};
+        static ArrayList <String> users = new ArrayList<>();
+        static ArrayList <String> placeMarkNameList = new ArrayList<>();
+        static ArrayList <String> placeMarkLatList = new ArrayList<>();
+        static ArrayList <String> placeMarkLonList = new ArrayList<>();
+        static void readFromPlaceMarkDetails(){
+            try {
+                File placeMarks = new File("data/PlaceMarkDetails.csv");
+                Scanner scanner = new Scanner(placeMarks);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    users.add(data[0]);
+                    placeMarkNameList.add(data[1]);
+                    placeMarkLatList.add(data[2]);
+                    placeMarkLonList.add(data[3]);
+                }
+                scanner.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
 
         static void writeToPlaceMarkDetails(ArrayList<String> placeMarkData){
             try{
@@ -136,5 +224,20 @@ public class Files {
         static ArrayList<String> getCityLongitudes(){
             return cityLongitudes;
         }
+    }
+
+    protected static class Requests{
+        protected static void writeToRequestFile(String username, String item, String quantity, String province, String district, String city, String price, String needOrHave){
+            try{
+                FileWriter requestsFile = new FileWriter("data/Requests.csv", true);
+                String data = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", username, item, quantity,province,district,city,price,needOrHave);
+                requestsFile.append(data);
+                requestsFile.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        //delete from requests file
     }
 }

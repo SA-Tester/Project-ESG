@@ -42,17 +42,18 @@ public class Login extends UserInterfaces{
                 //Add User privileges and user history
                 addMarkAsCompleted();
                 addPostARequest();
+                VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
                 //add user history panel and history
                 addPostARequest();
+                VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
             else{
                 JOptionPane.showMessageDialog(loginFrame,"Wrong Credentials","Error",JOptionPane.ERROR_MESSAGE);
             }
-            //System.out.println(msg);
         });
 
         cancel.addActionListener(e -> loginFrame.dispose());
@@ -173,17 +174,18 @@ public class Login extends UserInterfaces{
 
     private void addMarkAsCompleted() {
         Home.Left.markAsCompleted.setText("Mark as Completed");
-        Home.Left.markAsCompleted.setBounds(50, dim[1] - 350, 200, 40);
+        Home.Left.markAsCompleted.setBounds(50, dim[1] - 330, 200, 40);
         Color green = new Color(50, 145, 35);
         Home.Left.markAsCompleted.setBackground(green);
         Home.Left.markAsCompleted.setForeground(Color.WHITE);
         Home.Left.markAsCompleted.setFont(new Font("Arial", Font.PLAIN, 18));
         Home.Left.markAsCompleted.setBorder(BorderFactory.createBevelBorder(1));
+        Home.Left.getJTextArea().setSize(260,650);
     }
 
     private void addPostARequest(){
         Home.Right.postARequest.setText("Post");
-        Home.Right.postARequest.setBounds(110, dim[1] - 350, 100, 40);
+        Home.Right.postARequest.setBounds(110, dim[1] - 330, 100, 40);
         Color green = new Color(50, 145, 35);
         Home.Right.postARequest.setBackground(green);
         Home.Right.postARequest.setForeground(Color.WHITE);
@@ -191,9 +193,10 @@ public class Login extends UserInterfaces{
         Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
     }
 
-    protected class VerifyLogin extends Files.LoginInfo{
-        String checkLogin(){
+    private class VerifyLogin extends Files.LoginInfo{
+        private String checkLogin(){
             return Files.LoginInfo.verifyLoginInfo(inputUsername,inputPassword);
         }
+        protected static void updateCurrentLogin(String username){Files.LoginInfo.updateCurrentLogin(username);}
     }
 }

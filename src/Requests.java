@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Font;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Requests extends UserInterfaces{
 
@@ -33,9 +34,12 @@ public class Requests extends UserInterfaces{
     int[] dim = new Home().getScreenDimensions();
     private static final int width = 800;
     private static final int height = 750;
+    private boolean isRequestHaveIt = false;
 
     @Override
     JPanel createPanel() {
+        String username = Files.LoginInfo.getCurrentLogin();
+
         itemNameTextBox = createJTextField(itemNameTextBox,0);
         quantityTextBox = createJTextField(quantityTextBox,60);
         preferredProvinceCombo = createJComboBox(provinces,120);
@@ -60,8 +64,39 @@ public class Requests extends UserInterfaces{
         });
 
         preferredDistrictCombo.addActionListener(e -> preferredCityCombo.setModel(new DefaultComboBoxModel<>(getCities(preferredDistrictCombo.getSelectedItem().toString()))));
+
+        Files.SignUpDetails.readSignUpDetails(username);
+        preferredProvinceCombo.setSelectedItem(Files.SignUpDetails.getUserProvince());
+        preferredDistrictCombo.setSelectedItem(Files.SignUpDetails.getUserDistrict());
+        preferredCityCombo.setSelectedItem(Files.SignUpDetails.getUserCity());
+
+        haveItButton.addActionListener(e -> {
+            setRequestToHaveIt();
+        });
+
+        needItButton.addActionListener(e -> {
+            setRequestToNeedIt();
+        });
+
         confirm.addActionListener(e -> {
             //Post the Request to Map, JTextArea, Update Places List on left (post co-ords to placeMark file),
+            //Get user inputs and save to a file
+            String itemName = itemNameTextBox.getText();
+            String quantity = quantityTextBox.getText();
+            String preferredProvince = preferredProvinceCombo.getSelectedItem().toString();
+            String preferredDistrict = preferredDistrictCombo.getSelectedItem().toString();
+            String preferredCity = preferredCityCombo.getSelectedItem().toString();
+            String price = priceTextBox.getText();
+            String request = getRequest();
+
+            int selectedCityIndex = preferredCityCombo.getSelectedIndex();
+            new MapTemplate().addPlaceMark(CityCoordinates.getLatitude(selectedCityIndex),CityCoordinates.getLongitude(selectedCityIndex),preferredCity, true);
+            Home.Left.placeMarkNameList.add(preferredCity);
+            Home.Left.placeMarkLatList.add(Double.toString(CityCoordinates.getLatitude(selectedCityIndex)));
+            Home.Left.placeMarkLonList.add(Double.toString(CityCoordinates.getLongitude(selectedCityIndex)));
+            Home.Left.locationList.addItem(preferredCity);
+            Files.Requests.writeToRequestFile(username, itemName, quantity, preferredProvince, preferredDistrict, preferredCity, price, request);
+            requestFrame.dispose();
         });
 
         cancel.addActionListener(e -> requestFrame.dispose());
@@ -144,5 +179,34 @@ public class Requests extends UserInterfaces{
     @Override
     JPasswordField createJPasswordField(JPasswordField passField, int y) {
         return null;
+    }
+
+
+    void setRequestToHaveIt(){
+        needItButton.setEnabled(true);
+        isRequestHaveIt = true;
+        haveItButton.setEnabled(false);
+    }
+
+    void setRequestToNeedIt(){
+        haveItButton.setEnabled(true);
+        isRequestHaveIt = false;
+        needItButton.setEnabled(false);
+    }
+
+    String getRequest(){
+        String request = "NEED";
+        if(isRequestHaveIt) request = "HAVE";
+        return request;
+    }
+
+    private static class CityCoordinates extends Files.CitiesInDistricts{
+        static double getLatitude(int latIndex){
+            return Double.parseDouble(Files.CitiesInDistricts.getCityLatitudes().get(latIndex));
+        }
+
+        static double getLongitude(int lonIndex){
+            return Double.parseDouble(Files.CitiesInDistricts.getCityLongitudes().get(lonIndex));
+        }
     }
 }
