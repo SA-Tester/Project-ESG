@@ -17,8 +17,8 @@ import java.awt.Font;
 import java.util.Objects;
 
 public class Signup extends UserInterfaces{
-    static JFrame signupFrame = new JFrame();
-    static JPanel signupPanel = new JPanel();
+    JFrame signupFrame = new JFrame();
+    JPanel signupPanel = new JPanel();
     final private static String title = "Sign Up";
     private JTextField nameTextBox;
     private JTextField addressTextBox;
@@ -77,9 +77,11 @@ public class Signup extends UserInterfaces{
             String password1 = new String(passIn);
             String password2 = new String(confirmPassIn);
 
-            if(password1.strip().equals(password2.strip())){
+            if (password1.isBlank() && password2.isBlank())JOptionPane.showMessageDialog(signupFrame,"Password Cannot be Empty", "Error", JOptionPane.ERROR_MESSAGE);
+            else if (!password1.strip().equals(password2.strip())) JOptionPane.showMessageDialog(signupFrame,"Passwords does not match","Error",JOptionPane.ERROR_MESSAGE);
+            else {
                 String name = nameTextBox.getText().strip();
-                String address = addressTextBox.getText().strip();
+                String address = addressTextBox.getText().strip().replace(",", " ");
                 String mobile = mobileTextBox.getText().strip();
                 String username = usernameTextBox.getText().strip();
                 String province = Objects.requireNonNull(Objects.requireNonNull(provinceCombo.getSelectedItem()).toString());
@@ -88,33 +90,36 @@ public class Signup extends UserInterfaces{
                 String gNOffice = gramaNiladhariTextBox.getText().strip();
                 String privilegeType = Objects.requireNonNull(privilegeTypeCombo.getSelectedItem()).toString().toLowerCase();
 
-                if(privilegeType.equals("admin")){
-                    String validationMsg = "INVALID";
-                    try {
-                        String inputEmpID = JOptionPane.showInputDialog(signupFrame, "Enter Employee ID: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
-                        String inputOfficeCode = JOptionPane.showInputDialog(signupFrame, "Enter Office Code: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
-                        validationMsg = new infoAdmin().checkAdminInfo(inputEmpID, inputOfficeCode);
-                    }catch (NullPointerException ne){ne.printStackTrace();}
+                if(username == null) JOptionPane.showMessageDialog(signupFrame,"Username cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                else if (Files.SignUpDetails.checkValidityOfUsernames().contains(username))JOptionPane.showMessageDialog
+                        (signupFrame,"This username is already occupied", "Error", JOptionPane.ERROR_MESSAGE);
+                else{
+                    if(privilegeType.equals("admin")){
+                        String validationMsg = "INVALID";
+                        try {
+                            String inputEmpID = JOptionPane.showInputDialog(signupFrame, "Enter Employee ID: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
+                            String inputOfficeCode = JOptionPane.showInputDialog(signupFrame, "Enter Office Code: ", "Verify Admin Privileges", JOptionPane.QUESTION_MESSAGE);
+                            if(inputEmpID != null && inputOfficeCode != null) validationMsg = new infoAdmin().checkAdminInfo(inputEmpID, inputOfficeCode);
+                        }catch (NullPointerException ne){ne.printStackTrace();}
 
-                    if(validationMsg.equals("VALID")){
+                        if(validationMsg.equals("VALID")){
+                            new intoSignUp().addToSignUpFile(name,address,mobile,username,province,district,city,gNOffice);
+                            new intoLogin().addToLoginFile(username,password1,privilegeType);
+                            signupFrame.dispose();
+                            new Login().createJFrame();
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(signupFrame,"Admin Privileges cannot be granted","Error",JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    else{
                         new intoSignUp().addToSignUpFile(name,address,mobile,username,province,district,city,gNOffice);
                         new intoLogin().addToLoginFile(username,password1,privilegeType);
                         signupFrame.dispose();
                         new Login().createJFrame();
                     }
-                    else{
-                        JOptionPane.showMessageDialog(signupFrame,"Admin Privileges cannot be granted","Error",JOptionPane.ERROR_MESSAGE);
-                    }
                 }
-                else{
-                    new intoSignUp().addToSignUpFile(name,address,mobile,username,province,district,city,gNOffice);
-                    new intoLogin().addToLoginFile(username,password1,privilegeType);
-                    signupFrame.dispose();
-                    new Login().createJFrame();
-                }
-            }
-            else{
-                JOptionPane.showMessageDialog(signupFrame,"Passwords does not match","Error",JOptionPane.ERROR_MESSAGE);
+
             }
         });
 

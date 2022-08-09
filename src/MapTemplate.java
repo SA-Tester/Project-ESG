@@ -29,9 +29,10 @@ import java.util.ArrayList;
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
     public static WorldWindow wwdPublic;
-    static ArrayList <String> placeMarkData = new ArrayList<>();
-    static ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
+    static private ArrayList <String> placeMarkData = new ArrayList<>();
+    static private ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
+    private final String username = Files.LoginInfo.getCurrentLogin();
 
    public static class MapPanel extends JPanel{
         protected WorldWindow wwd;
@@ -86,7 +87,7 @@ public class MapTemplate {
         insertBeforeCompass(wwdPublic,placeMarkLayer);
     }
 
-    public void addPlaceMark(float lat, float lon, String name){
+    public void addPlaceMark(double lat, double lon, String name, boolean addToFile){
         placeMarkLayer.setName("placeMarkLayer");
         PointPlacemark p = new PointPlacemark(Position.fromDegrees(lat,lon,1000));
         p.setLabelText(name);
@@ -98,8 +99,14 @@ public class MapTemplate {
         placeMarkLayer.addRenderable(p);
         placeMarkPoints.add(p);
 
-        getPlaceMarks(p);
-        new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
+        if(addToFile){
+            getPlaceMarks(p);
+            new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
+        }
+        else {
+            getPlaceMarks(p);
+        }
+        //System.out.println(placeMarkData);
     }
 
     public static void insertBeforeCompass(WorldWindow wwd, Layer layer){
@@ -115,14 +122,15 @@ public class MapTemplate {
 
     public void goTo(double lat, double lon){
         Position pos = new Position(Position.fromDegrees(lat,lon));
-        wwdPublic.getView().goTo(pos,1000000);
+        wwdPublic.getView().goTo(pos,200000);
     }
 
    private void getPlaceMarks(PointPlacemark p) {
        double latDeg = p.getPosition().latitude.degrees;
        double lonDeg = p.getPosition().longitude.degrees;
 
-       String dataLine = String.format("%s,%.2f,%.2f\n",p.getLabelText(),latDeg,lonDeg);//p.getLabelText() + "," + latDeg + "," + lonDeg + '\n';
+       String reqID = Requests.getReqID();
+       String dataLine = String.format("%s,%s,%s,%.2f,%.2f\n",reqID,username,p.getLabelText(),latDeg,lonDeg);
        placeMarkData.add(dataLine);
    }
 
@@ -134,6 +142,7 @@ public class MapTemplate {
                if (placeMarkPoints.get(i).getPosition().equals(pos)) {
                    placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
                    placeMarkData.remove(i);
+                   placeMarkPoints.remove(placeMarkPoints.get(i));
                }
            }
        }catch (IndexOutOfBoundsException e){
@@ -142,7 +151,7 @@ public class MapTemplate {
        new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
    }
 
-   private class PlaceMarkDetails extends Files.PlaceMarkDetails{
+   private static class PlaceMarkDetails extends Files.PlaceMarkDetails{
        void writeToPlaceMarkFile(ArrayList <String> placeMarkList){
            Files.PlaceMarkDetails.writeToPlaceMarkDetails(placeMarkList);
        }

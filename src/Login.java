@@ -7,10 +7,11 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.Cursor;
+import java.util.ArrayList;
 
 public class Login extends UserInterfaces{
-    static JFrame loginFrame = new JFrame();
-    static JPanel loginPanel = new JPanel();
+    JFrame loginFrame = new JFrame();
+    JPanel loginPanel = new JPanel();
     final private static String title = "Login";
     private JTextField userNameTextBox;
     private String inputUsername;
@@ -39,20 +40,23 @@ public class Login extends UserInterfaces{
 
             msg = new VerifyLogin().checkLogin();
             if(msg.equals("ADMIN PRIVILEGES")){
-                //Add User privileges and user history
                 addMarkAsCompleted();
                 addPostARequest();
+                addClaimIt();
+                addUserHistory();
+                VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
-                //add user history panel and history
                 addPostARequest();
+                addClaimIt();
+                addUserHistory();
+                VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
             else{
                 JOptionPane.showMessageDialog(loginFrame,"Wrong Credentials","Error",JOptionPane.ERROR_MESSAGE);
             }
-            //System.out.println(msg);
         });
 
         cancel.addActionListener(e -> loginFrame.dispose());
@@ -140,7 +144,7 @@ public class Login extends UserInterfaces{
         return null;
     }
 
-    private static class Hyperlinks extends JLabel implements MouseListener {
+    private class Hyperlinks extends JLabel implements MouseListener {
         protected JLabel createHyperLink(String linkTitle, int x){
             JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
@@ -173,17 +177,18 @@ public class Login extends UserInterfaces{
 
     private void addMarkAsCompleted() {
         Home.Left.markAsCompleted.setText("Mark as Completed");
-        Home.Left.markAsCompleted.setBounds(50, dim[1] - 350, 200, 40);
+        Home.Left.markAsCompleted.setBounds(50, dim[1] - 330, 200, 40);
         Color green = new Color(50, 145, 35);
         Home.Left.markAsCompleted.setBackground(green);
         Home.Left.markAsCompleted.setForeground(Color.WHITE);
         Home.Left.markAsCompleted.setFont(new Font("Arial", Font.PLAIN, 18));
         Home.Left.markAsCompleted.setBorder(BorderFactory.createBevelBorder(1));
+        Home.Left.getJTextArea().setSize(260,650);
     }
 
     private void addPostARequest(){
         Home.Right.postARequest.setText("Post");
-        Home.Right.postARequest.setBounds(110, dim[1] - 350, 100, 40);
+        Home.Right.postARequest.setBounds(110, dim[1] - 330, 100, 40);
         Color green = new Color(50, 145, 35);
         Home.Right.postARequest.setBackground(green);
         Home.Right.postARequest.setForeground(Color.WHITE);
@@ -191,9 +196,38 @@ public class Login extends UserInterfaces{
         Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
     }
 
-    protected class VerifyLogin extends Files.LoginInfo{
-        String checkLogin(){
+    private void addClaimIt(){
+        Home.Right.claimIt.setText("Claim It");
+        Home.Right.claimIt.setBounds(110,dim[1]-400,100,40);
+        Color green = new Color(50, 145, 35);
+        Home.Right.claimIt.setBackground(green);
+        Home.Right.claimIt.setForeground(Color.WHITE);
+        Home.Right.claimIt.setFont(new Font("Arial", Font.PLAIN,20));
+        Home.Right.claimIt.setBorder(BorderFactory.createBevelBorder(1));
+    }
+
+    private void addUserHistory(){
+        Home.Right.userHistoryPanel.setSize(262,640);
+        Home.Right.userHistoryPanel.setText("User History\n\n");
+
+        UserHistory.getUserHistory();
+        for(int i=0; i<UserHistory.history.size(); i++){//username,date, msg,itemName, qty
+            String[] data = UserHistory.history.get(i);
+            Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
+        }
+    }
+
+    private class VerifyLogin extends Files.LoginInfo{
+        private String checkLogin(){
             return Files.LoginInfo.verifyLoginInfo(inputUsername,inputPassword);
+        }
+        protected static void updateCurrentLogin(String username){Files.LoginInfo.updateCurrentLogin(username);}
+    }
+
+    private static class UserHistory extends Files.UserHistory{
+        static ArrayList <String[]> history = Files.UserHistory.userHistoryList;
+        private static void getUserHistory(){
+            Files.UserHistory.readFromUserHistory(Files.LoginInfo.getCurrentLogin());
         }
     }
 }
