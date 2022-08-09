@@ -1,4 +1,3 @@
-import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -33,7 +32,7 @@ public class MapTemplate {
     static private ArrayList <String> placeMarkData = new ArrayList<>();
     static private ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
-    private String username = Files.LoginInfo.getCurrentLogin();
+    private final String username = Files.LoginInfo.getCurrentLogin();
 
    public static class MapPanel extends JPanel{
         protected WorldWindow wwd;
@@ -130,7 +129,8 @@ public class MapTemplate {
        double latDeg = p.getPosition().latitude.degrees;
        double lonDeg = p.getPosition().longitude.degrees;
 
-       String dataLine = String.format("%s,%s,%.2f,%.2f\n",username,p.getLabelText(),latDeg,lonDeg);
+       String reqID = Requests.getReqID();
+       String dataLine = String.format("%s,%s,%s,%.2f,%.2f\n",reqID,username,p.getLabelText(),latDeg,lonDeg);
        placeMarkData.add(dataLine);
    }
 
@@ -138,7 +138,6 @@ public class MapTemplate {
        Position pos = new Position(Position.fromDegrees(lat, lon,1000));
 
        try {
-           //System.out.println(placeMarkPoints.size());
            for (int i = 0; i < placeMarkPoints.size(); i++) {
                if (placeMarkPoints.get(i).getPosition().equals(pos)) {
                    placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
@@ -150,10 +149,9 @@ public class MapTemplate {
            e.printStackTrace();
        }
        new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
-       //System.out.println(placeMarkData);
    }
 
-   private class PlaceMarkDetails extends Files.PlaceMarkDetails{
+   private static class PlaceMarkDetails extends Files.PlaceMarkDetails{
        void writeToPlaceMarkFile(ArrayList <String> placeMarkList){
            Files.PlaceMarkDetails.writeToPlaceMarkDetails(placeMarkList);
        }

@@ -14,12 +14,11 @@ import java.awt.Color;
 import java.awt.Font;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Requests extends UserInterfaces{
 
-    static JFrame requestFrame = new JFrame();
-    static JPanel requestPanel = new JPanel();
+    JFrame requestFrame = new JFrame();
+    JPanel requestPanel = new JPanel();
     private JTextField itemNameTextBox;
     private JTextField quantityTextBox;
     private JComboBox<String> preferredProvinceCombo; //Set to saved settings at signup
@@ -35,10 +34,12 @@ public class Requests extends UserInterfaces{
     private static final int width = 800;
     private static final int height = 750;
     private boolean isRequestHaveIt = false;
+    private static String reqID;
 
     @Override
     JPanel createPanel() {
         String username = Files.LoginInfo.getCurrentLogin();
+        Files.Requests.getRequestCount();
 
         itemNameTextBox = createJTextField(itemNameTextBox,0);
         quantityTextBox = createJTextField(quantityTextBox,60);
@@ -70,24 +71,26 @@ public class Requests extends UserInterfaces{
         preferredDistrictCombo.setSelectedItem(Files.SignUpDetails.getUserDistrict());
         preferredCityCombo.setSelectedItem(Files.SignUpDetails.getUserCity());
 
-        haveItButton.addActionListener(e -> {
-            setRequestToHaveIt();
-        });
+        haveItButton.addActionListener(e -> setRequestToHaveIt());
 
-        needItButton.addActionListener(e -> {
-            setRequestToNeedIt();
-        });
+        needItButton.addActionListener(e -> setRequestToNeedIt());
 
         confirm.addActionListener(e -> {
             //Post the Request to Map, JTextArea, Update Places List on left (post co-ords to placeMark file),
             //Get user inputs and save to a file
             String itemName = itemNameTextBox.getText();
             String quantity = quantityTextBox.getText();
-            String preferredProvince = preferredProvinceCombo.getSelectedItem().toString();
+            String preferredProvince = Objects.requireNonNull(preferredProvinceCombo.getSelectedItem()).toString();
             String preferredDistrict = preferredDistrictCombo.getSelectedItem().toString();
-            String preferredCity = preferredCityCombo.getSelectedItem().toString();
+            String preferredCity = Objects.requireNonNull(preferredCityCombo.getSelectedItem()).toString();
             String price = priceTextBox.getText();
             String request = getRequest();
+            if(request.equals("HAVE")){
+                reqID = "H" + (Files.Requests.getNoOfHaveItRequests() + 1);
+            }
+            else {
+                reqID = "W" + (Files.Requests.getNoOfWantItRequests() + 1);
+            }
 
             int selectedCityIndex = preferredCityCombo.getSelectedIndex();
             new MapTemplate().addPlaceMark(CityCoordinates.getLatitude(selectedCityIndex),CityCoordinates.getLongitude(selectedCityIndex),preferredCity, true);
@@ -95,7 +98,7 @@ public class Requests extends UserInterfaces{
             Home.Left.placeMarkLatList.add(Double.toString(CityCoordinates.getLatitude(selectedCityIndex)));
             Home.Left.placeMarkLonList.add(Double.toString(CityCoordinates.getLongitude(selectedCityIndex)));
             Home.Left.locationList.addItem(preferredCity);
-            Files.Requests.writeToRequestFile(username, itemName, quantity, preferredProvince, preferredDistrict, preferredCity, price, request);
+            Files.Requests.writeToRequestFile(reqID, username, itemName, quantity, preferredProvince, preferredDistrict, preferredCity, price, request);
             requestFrame.dispose();
         });
 
@@ -198,6 +201,10 @@ public class Requests extends UserInterfaces{
         String request = "NEED";
         if(isRequestHaveIt) request = "HAVE";
         return request;
+    }
+
+    public static String getReqID(){
+        return reqID;
     }
 
     private static class CityCoordinates extends Files.CitiesInDistricts{

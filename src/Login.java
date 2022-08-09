@@ -7,10 +7,11 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.Cursor;
+import java.util.ArrayList;
 
 public class Login extends UserInterfaces{
-    static JFrame loginFrame = new JFrame();
-    static JPanel loginPanel = new JPanel();
+    JFrame loginFrame = new JFrame();
+    JPanel loginPanel = new JPanel();
     final private static String title = "Login";
     private JTextField userNameTextBox;
     private String inputUsername;
@@ -39,15 +40,17 @@ public class Login extends UserInterfaces{
 
             msg = new VerifyLogin().checkLogin();
             if(msg.equals("ADMIN PRIVILEGES")){
-                //Add User privileges and user history
                 addMarkAsCompleted();
                 addPostARequest();
+                addClaimIt();
+                addUserHistory();
                 VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
-                //add user history panel and history
                 addPostARequest();
+                addClaimIt();
+                addUserHistory();
                 VerifyLogin.updateCurrentLogin(inputUsername);
                 loginFrame.dispose();
             }
@@ -141,7 +144,7 @@ public class Login extends UserInterfaces{
         return null;
     }
 
-    private static class Hyperlinks extends JLabel implements MouseListener {
+    private class Hyperlinks extends JLabel implements MouseListener {
         protected JLabel createHyperLink(String linkTitle, int x){
             JLabel hyperLink = new JLabel(linkTitle);
             hyperLink.setName(linkTitle.strip() + "Label");
@@ -193,10 +196,38 @@ public class Login extends UserInterfaces{
         Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
     }
 
+    private void addClaimIt(){
+        Home.Right.claimIt.setText("Claim It");
+        Home.Right.claimIt.setBounds(110,dim[1]-400,100,40);
+        Color green = new Color(50, 145, 35);
+        Home.Right.claimIt.setBackground(green);
+        Home.Right.claimIt.setForeground(Color.WHITE);
+        Home.Right.claimIt.setFont(new Font("Arial", Font.PLAIN,20));
+        Home.Right.claimIt.setBorder(BorderFactory.createBevelBorder(1));
+    }
+
+    private void addUserHistory(){
+        Home.Right.userHistoryPanel.setSize(262,640);
+        Home.Right.userHistoryPanel.setText("User History\n\n");
+
+        UserHistory.getUserHistory();
+        for(int i=0; i<UserHistory.history.size(); i++){//username,date, msg,itemName, qty
+            String[] data = UserHistory.history.get(i);
+            Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
+        }
+    }
+
     private class VerifyLogin extends Files.LoginInfo{
         private String checkLogin(){
             return Files.LoginInfo.verifyLoginInfo(inputUsername,inputPassword);
         }
         protected static void updateCurrentLogin(String username){Files.LoginInfo.updateCurrentLogin(username);}
+    }
+
+    private static class UserHistory extends Files.UserHistory{
+        static ArrayList <String[]> history = Files.UserHistory.userHistoryList;
+        private static void getUserHistory(){
+            Files.UserHistory.readFromUserHistory(Files.LoginInfo.getCurrentLogin());
+        }
     }
 }

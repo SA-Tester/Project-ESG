@@ -17,8 +17,8 @@ import java.awt.Font;
 import java.util.Objects;
 
 public class Signup extends UserInterfaces{
-    static JFrame signupFrame = new JFrame();
-    static JPanel signupPanel = new JPanel();
+    JFrame signupFrame = new JFrame();
+    JPanel signupPanel = new JPanel();
     final private static String title = "Sign Up";
     private JTextField nameTextBox;
     private JTextField addressTextBox;
