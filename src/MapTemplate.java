@@ -28,15 +28,13 @@ import java.util.ArrayList;
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
-    public static WorldWindow wwdPublic;
+    //public WorldWindow wwdPublic;
     static private ArrayList <String> placeMarkData = new ArrayList<>();
     static private ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
-    private final String username = Files.LoginInfo.getCurrentLogin();
 
    public static class MapPanel extends JPanel{
-        protected WorldWindow wwd;
-        protected StatusBar statusBar;
+        private static WorldWindow wwd;
         protected ToolTipController toolTipController;
         protected HighlightController highlightController;
 
@@ -45,25 +43,23 @@ public class MapTemplate {
             //Super set the JPanel Layout a BorderLayout
             super(new BorderLayout());
 
-            this.wwd = this.createWorldWindow();
-            ((Component) this.wwd).setPreferredSize(canvasSize);
-
-            wwdPublic = this.wwd;
+            wwd = this.createWorldWindow();
+            ((Component) wwd).setPreferredSize(canvasSize);
 
             //Crete Default model
             Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
-            this.wwd.setModel(m);
+            wwd.setModel(m);
 
-            this.add((Component) this.wwd, BorderLayout.CENTER);
+            this.add((Component) wwd, BorderLayout.CENTER);
             if(includeStatusBar){
-                this.statusBar = new StatusBar();
+                StatusBar statusBar = new StatusBar();
                 this.add(statusBar,BorderLayout.SOUTH);
-                this.statusBar.setEventSource(wwd);
+                statusBar.setEventSource(wwd);
             }
 
             //Enable interactions with Place marks, their labels etc.
-            this.toolTipController = new ToolTipController(this.getWWD(),AVKey.DISPLAY_NAME, null);
-            this.highlightController = new HighlightController(this.getWWD(), SelectEvent.ROLLOVER);
+            this.toolTipController = new ToolTipController(getWWD(),AVKey.DISPLAY_NAME, null);
+            this.highlightController = new HighlightController(getWWD(), SelectEvent.ROLLOVER);
             addViewControlsLayer();
             addPlaceMarkLayer();
         }
@@ -71,20 +67,20 @@ public class MapTemplate {
         protected WorldWindow createWorldWindow(){
             return new WorldWindowGLCanvas();
         }
-        protected WorldWindow getWWD(){
+        protected static WorldWindow getWWD(){
             return wwd;
         }
     }
 
     protected static void addViewControlsLayer(){
         ViewControlsLayer viewControlsLayer = new ViewControlsLayer();
-        insertBeforeCompass(wwdPublic, viewControlsLayer);
-        wwdPublic.addSelectListener(new ViewControlsSelectListener(wwdPublic, viewControlsLayer));
+        insertBeforeCompass(MapPanel.getWWD(), viewControlsLayer);
+        MapPanel.getWWD().addSelectListener(new ViewControlsSelectListener(MapPanel.getWWD(), viewControlsLayer));
     }
 
     protected static void addPlaceMarkLayer(){
         placeMarkLayer.setName("placeMarkLayer");
-        insertBeforeCompass(wwdPublic,placeMarkLayer);
+        insertBeforeCompass(MapPanel.getWWD(),placeMarkLayer);
     }
 
     public void addPlaceMark(double lat, double lon, String name, boolean addToFile){
@@ -106,7 +102,6 @@ public class MapTemplate {
         else {
             getPlaceMarks(p);
         }
-        //System.out.println(placeMarkData);
     }
 
     public static void insertBeforeCompass(WorldWindow wwd, Layer layer){
@@ -122,15 +117,14 @@ public class MapTemplate {
 
     public void goTo(double lat, double lon){
         Position pos = new Position(Position.fromDegrees(lat,lon));
-        wwdPublic.getView().goTo(pos,200000);
+        MapPanel.getWWD().getView().goTo(pos,200000);
     }
 
    private void getPlaceMarks(PointPlacemark p) {
        double latDeg = p.getPosition().latitude.degrees;
        double lonDeg = p.getPosition().longitude.degrees;
 
-       String reqID = Requests.getReqID();
-       String dataLine = String.format("%s,%s,%s,%.2f,%.2f\n",reqID,username,p.getLabelText(),latDeg,lonDeg);
+       String dataLine = String.format("%s,%.2f,%.2f\n",p.getLabelText(),latDeg,lonDeg);
        placeMarkData.add(dataLine);
    }
 

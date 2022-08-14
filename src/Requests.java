@@ -14,14 +14,14 @@ import java.awt.Color;
 import java.awt.Font;
 
 import java.util.Objects;
+import java.time.LocalDate;
 
 public class Requests extends UserInterfaces{
-
     JFrame requestFrame = new JFrame();
     JPanel requestPanel = new JPanel();
     private JTextField itemNameTextBox;
     private JTextField quantityTextBox;
-    private JComboBox<String> preferredProvinceCombo; //Set to saved settings at signup
+    private JComboBox<String> preferredProvinceCombo;
     private JComboBox<String> preferredDistrictCombo;
     private JComboBox<String> preferredCityCombo;
     private JTextField priceTextBox;
@@ -38,7 +38,7 @@ public class Requests extends UserInterfaces{
 
     @Override
     JPanel createPanel() {
-        String username = Files.LoginInfo.getCurrentLogin();
+        String username = Login.currentLogin;
         Files.Requests.getRequestCount();
 
         itemNameTextBox = createJTextField(itemNameTextBox,0);
@@ -87,6 +87,9 @@ public class Requests extends UserInterfaces{
             String request = getRequest();
             if(request.equals("HAVE")){
                 reqID = "H" + (Files.Requests.getNoOfHaveItRequests() + 1);
+
+                LocalDate date = LocalDate.now();
+                Home.Right.addToUserHistory(date.toString(),"GAVE",quantity,itemName,true);
             }
             else {
                 reqID = "W" + (Files.Requests.getNoOfWantItRequests() + 1);
@@ -98,6 +101,7 @@ public class Requests extends UserInterfaces{
             Home.Left.placeMarkLatList.add(Double.toString(CityCoordinates.getLatitude(selectedCityIndex)));
             Home.Left.placeMarkLonList.add(Double.toString(CityCoordinates.getLongitude(selectedCityIndex)));
             Home.Left.locationList.addItem(preferredCity);
+            Files.Requests.requests.add(reqID);
             Files.Requests.writeToRequestFile(reqID, username, itemName, quantity, preferredProvince, preferredDistrict, preferredCity, price, request);
             requestFrame.dispose();
         });
@@ -201,10 +205,6 @@ public class Requests extends UserInterfaces{
         String request = "NEED";
         if(isRequestHaveIt) request = "HAVE";
         return request;
-    }
-
-    public static String getReqID(){
-        return reqID;
     }
 
     private static class CityCoordinates extends Files.CitiesInDistricts{

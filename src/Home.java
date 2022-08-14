@@ -36,6 +36,9 @@ import javax.swing.ImageIcon;
 import javax.swing.Icon;
 import javax.swing.WindowConstants;
 import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import java.awt.Component;
 import java.awt.Color;
@@ -105,7 +108,7 @@ public class Home{
             return completedActions;
         }
 
-       public static int getSelectedIndex(){
+        public static int getSelectedIndex(){
             return selectedIndex;
         }
 
@@ -190,18 +193,6 @@ public class Home{
                 locationList.removeItem(locationList.getSelectedItem());
             }
         }
-
-        /*private void enableDisableClaim(int selectedIndex){
-            //Get requests list from read placemarks
-            //set enable/ disable to locationlist (combo) with an id
-            //Files.PlaceMarkDetails.requests
-            if(PlaceMarkDetails.requestsList.get(selectedIndex).charAt(0) == 'H'){
-                setDisable = true;
-            }
-            else{
-                setDisable = false;
-            }
-        }*/
     }
 
     //Add map to main window
@@ -218,7 +209,7 @@ public class Home{
     //Add user history panel to main window
     public static class Right{
         public static JButton postARequest = new JButton();
-        public static JButton claimIt = new JButton();
+        public static JButton reserve = new JButton();
         public static JTextArea userHistoryPanel = new JTextArea();
 
         private JPanel addRightPanel(){
@@ -235,25 +226,25 @@ public class Home{
             userHistoryPanel.setForeground(Color.GREEN);
             userHistoryPanel.setBorder(new EmptyBorder(20,20,20,20));
             userHistoryPanel.setFont(new Font("Arial", Font.PLAIN, 15));
-            userHistoryPanel.append("Login To Contribute\n");
+            userHistoryPanel.append("Login To Post/ Claim\n");
             rightPanel.add(userHistoryPanel);
 
-            claimIt.addActionListener(e -> {
-                Left.markAsCompleted();
+            reserve.addActionListener(e -> {
+                /*Left.markAsCompleted();
 
                 LocalDate date = LocalDate.now();
                 int index = Left.getSelectedIndex();
                 String msg = null;
 
-                if(PlaceMarkDetails.requestsList.get(index).charAt(0) == 'H') msg = "GAVE";
+                if(Requests.requestsList.get(index).charAt(0) == 'H') msg = "GAVE";
                 else msg = "CLAIMED";
 
                 String qty = Files.Requests.getQuantity();
                 String itemName = Files.Requests.getItemName();
 
-                addToUserHistory(date.toString(),msg,qty,itemName,true);
+                addToUserHistory(date.toString(),msg,qty,itemName,true);*/
             });
-            rightPanel.add(claimIt);
+            rightPanel.add(reserve);
             return rightPanel;
         }
 
@@ -326,7 +317,7 @@ public class Home{
     }
 
     private static class PlaceMarkDetails extends Files.PlaceMarkDetails{
-        static ArrayList<String> requestsList = Files.PlaceMarkDetails.requests;
+        static ArrayList<String> requestsList = Files.Requests.requests;
         static ArrayList <String> placeMarkNameList = Files.PlaceMarkDetails.placeMarkNameList;
         static ArrayList <String> placeMarkLatList = Files.PlaceMarkDetails.placeMarkLatList;
         static ArrayList <String> placeMarkLonList = Files.PlaceMarkDetails.placeMarkLonList;

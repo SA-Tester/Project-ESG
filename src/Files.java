@@ -21,9 +21,11 @@ public class Files {
                     String[] data = scanner.nextLine().split(",");
                     if(inputUsername.equals(data[0]) && inputPassword.equals(data[1]) && data[2].equals("admin")){
                         msg = "ADMIN PRIVILEGES";
+                        Login.currentLogin = inputUsername;
                     }
                     else if(inputUsername.equals(data[0]) && inputPassword.equals(data[1]) && data[2].equals("user")){
                         msg = "USER PRIVILEGES";
+                        Login.currentLogin = inputUsername;
                     }
                 }
                 scanner.close();
@@ -42,33 +44,6 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
-        }
-
-        protected static void updateCurrentLogin(String username){
-            try{
-                FileWriter currentLoginFile = new FileWriter("data/Current_Login.csv");
-                String formattedString = String.format("%s\n",username);
-                currentLoginFile.write(formattedString);
-                currentLoginFile.close();
-
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-
-        protected static String getCurrentLogin(){
-            String data = null;
-            try{
-                File currentLoginFile = new File("data/Current_Login.csv");
-                Scanner scanner = new Scanner(currentLoginFile);
-                while(scanner.hasNextLine()){
-                    data = scanner.nextLine();
-                }
-                scanner.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-            return data;
         }
     }
 
@@ -118,7 +93,6 @@ public class Files {
             return userCity;
         }
 
-        //name,address,mobile,username,password1,province, district, city, gNOffice,privilegeType
         protected static void writeToSignUpDetails(String name, String address, String mobile, String username, String province, String district, String city , String gNOffice){
             String formattedString = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",name,address,mobile,username,province,district,city,gNOffice);
 
@@ -155,8 +129,6 @@ public class Files {
         }
     }
     protected static class PlaceMarkDetails{
-        static ArrayList <String> requests = new ArrayList<>();
-        static ArrayList <String> users = new ArrayList<>();
         static ArrayList <String> placeMarkNameList = new ArrayList<>();
         static ArrayList <String> placeMarkLatList = new ArrayList<>();
         static ArrayList <String> placeMarkLonList = new ArrayList<>();
@@ -166,11 +138,9 @@ public class Files {
                 Scanner scanner = new Scanner(placeMarks);
                 while(scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
-                    requests.add(data[0]);
-                    users.add(data[1]);
-                    placeMarkNameList.add(data[2]);
-                    placeMarkLatList.add(data[3]);
-                    placeMarkLonList.add(data[4]);
+                    placeMarkNameList.add(data[0]);
+                    placeMarkLatList.add(data[1]);
+                    placeMarkLonList.add(data[2]);
                 }
                 scanner.close();
             }catch (IOException e){
@@ -231,6 +201,7 @@ public class Files {
     }
 
     protected static class Requests{
+        static ArrayList <String> requests = new ArrayList<>();
         private static String itemName = null;
         private static String quantity = null;
         private static int haveItRequests = 0;
@@ -344,7 +315,7 @@ public class Files {
             if(writeToFile){
                 try{
                     FileWriter userHistoryFile = new FileWriter("data/User History.csv",true);
-                    String dataLine = String.format("%s,%s,%s,%s,%s\n",LoginInfo.getCurrentLogin(),date,msg,itemName,qty);
+                    String dataLine = String.format("%s,%s,%s,%s,%s\n",Login.currentLogin,date,msg,itemName,qty);
                     userHistoryFile.append(dataLine);
                     userHistoryFile.close();
                 }catch (IOException e){
@@ -367,6 +338,77 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    protected static class ResetPasswordRequests{
+        private String password1;
+        private String password2;
+
+        //update login info file
+        void updateLogin(String inputUsername){
+            try{
+                FileWriter newLoginFile = new FileWriter("data/LoginInfo2.csv",true);
+                File loginFile = new File("data/LoginInfo.csv");
+                Scanner scanner = new Scanner(loginFile);
+
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    String dataLine = null;
+
+                    if(data[0].equals(inputUsername)){
+                        if(password1.equals(password2)){ //Comment if
+                            dataLine = String.format("%s,%s,%s\n", inputUsername, password1, data[2]);
+                        }
+                    }
+                    else{
+                        dataLine = String.format("%s,%s,%s\n", data[0], data[1], data[2]);
+                    }
+                    newLoginFile.append(dataLine);
+                }
+                scanner.close();
+                newLoginFile.close();
+
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        public void setPassword(String pwd1, String pwd2){
+            this.password1 = pwd1;
+            this.password2 = pwd2;
+        }
+
+
+        //update the last password reset data
+        protected static void updateResetPasswordValidity(String inputUsername, String time){
+            try {
+                FileWriter resetPasswordsFile = new FileWriter("data/Reset Password Requests.csv", true);
+                String dataLine = String.format("%s,%s\n",inputUsername,time);
+                resetPasswordsFile.append(dataLine);
+                resetPasswordsFile.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        //Check with the time
+        protected static String checkRestPasswordValidity(String inputUsername){
+            String time = null;
+            try{
+                File resetPasswordsFile = new File ("data/Reset Password Requests.csv");
+                Scanner scanner = new Scanner(resetPasswordsFile);
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    if(inputUsername.equals(data[0])){
+                        time = data[1];
+                    }
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+            return time;
         }
     }
 }
