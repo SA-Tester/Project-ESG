@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class Login extends UserInterfaces{
     public static String currentLogin;
     JFrame loginFrame = new JFrame();
@@ -53,7 +54,7 @@ public class Login extends UserInterfaces{
 
             msg = new VerifyLogin().checkLogin();
             if(msg.equals("ADMIN PRIVILEGES")){
-                addMarkAsCompleted();
+                addShowOngoingTransfers();
                 addPostARequest();
                 addReserve();
                 addUserHistory();
@@ -176,7 +177,7 @@ public class Login extends UserInterfaces{
                     new Signup().createJFrame();
                 }
                 else if(label.getName().equals("Forgot Password?Label")){
-                    showResetPasswordDialog();
+                   showResetPasswordDialog();
                 }
             }
         }
@@ -184,6 +185,48 @@ public class Login extends UserInterfaces{
         public void mouseExited(MouseEvent e){}
         public void mousePressed(MouseEvent e){}
         public void mouseReleased(MouseEvent e){}
+    }
+
+    private void addShowOngoingTransfers() {
+        Home.Left.onGoingButton.setText("View Ongoing Transfers");
+        Home.Left.onGoingButton.setBounds(33, dim[1] - 330, 230, 40);
+        Color green = new Color(50, 145, 35);
+        Home.Left.onGoingButton.setBackground(green);
+        Home.Left.onGoingButton.setForeground(Color.WHITE);
+        Home.Left.onGoingButton.setFont(new Font("Arial", Font.PLAIN, 18));
+        Home.Left.onGoingButton.setBorder(BorderFactory.createBevelBorder(1));
+        Home.Left.getJTextArea().setSize(260,650);
+    }
+
+    private void addPostARequest(){
+        Home.Right.postARequest.setText("Post");
+        Home.Right.postARequest.setBounds(90, dim[1] - 330, 140, 40);
+        Color green = new Color(50, 145, 35);
+        Home.Right.postARequest.setBackground(green);
+        Home.Right.postARequest.setForeground(Color.WHITE);
+        Home.Right.postARequest.setFont(new Font("Arial", Font.PLAIN, 18));
+        Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
+    }
+
+    private void addReserve(){
+        Home.Right.reserve.setText("Reserve Item");
+        Home.Right.reserve.setBounds(90,dim[1]-400,140,40);
+        Color green = new Color(50, 145, 35);
+        Home.Right.reserve.setBackground(green);
+        Home.Right.reserve.setForeground(Color.WHITE);
+        Home.Right.reserve.setFont(new Font("Arial", Font.PLAIN,18));
+        Home.Right.reserve.setBorder(BorderFactory.createBevelBorder(1));
+    }
+
+    private void addUserHistory(){
+        Home.Right.userHistoryPanel.setSize(262,640);
+        Home.Right.userHistoryPanel.setText("User History\n\n");
+
+        UserHistory.getUserHistory();
+        for(int i=0; i<UserHistory.history.size(); i++){//username,date, msg,itemName, qty
+            String[] data = UserHistory.history.get(i);
+            Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
+        }
     }
 
     private void showResetPasswordDialog(){
@@ -212,7 +255,6 @@ public class Login extends UserInterfaces{
 
         JTextField telNoText = new JTextField();
         telNoText.setFont(new Font("Arial",Font.BOLD,17));
-        telNoText.setForeground(Color.WHITE);
         Border border = BorderFactory.createLineBorder(Color.WHITE,3);
         telNoText.setBorder(border);
         telNoText.setBounds(220,120,250,30);
@@ -240,7 +282,7 @@ public class Login extends UserInterfaces{
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
-            int i = 90;
+            int i = 30;
             @Override
             public void run() {
                 timerCount.setText("Time Remaining: " + i/60 + ":" + i%60);
@@ -249,57 +291,106 @@ public class Login extends UserInterfaces{
                 if(i<0){
                     timer.cancel();
                     timerCount.setText("Time Over !!!");
+                    okayButton.setEnabled(false);
                 }
             }
         }, 0, 1000);
 
         okayButton.addActionListener(e->{
-            //okay code goes here
+            String telephone = telNoText.getText();
+
+            if(!userNameTextBox.getText().isEmpty()){
+                Files.SignUpDetails.readSignUpDetails(userNameTextBox.getText());
+
+                if(telephone.equals(Files.SignUpDetails.getTelephoneNumber())){
+                    passwordFrame.dispose();
+                    showNewPasswordFrame();
+                }
+                else{
+                    JOptionPane.showMessageDialog(passwordFrame,"Wrong Telephone Number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(passwordFrame,"Enter username","Error",JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         cancelButton.addActionListener(e-> passwordFrame.dispose());
     }
 
-    private void addMarkAsCompleted() {
-        Home.Left.markAsCompleted.setText("Mark as Completed");
-        Home.Left.markAsCompleted.setBounds(50, dim[1] - 330, 200, 40);
-        Color green = new Color(50, 145, 35);
-        Home.Left.markAsCompleted.setBackground(green);
-        Home.Left.markAsCompleted.setForeground(Color.WHITE);
-        Home.Left.markAsCompleted.setFont(new Font("Arial", Font.PLAIN, 18));
-        Home.Left.markAsCompleted.setBorder(BorderFactory.createBevelBorder(1));
-        Home.Left.getJTextArea().setSize(260,650);
-    }
+    private void showNewPasswordFrame(){
+        JPanel newPasswordPanel = new JPanel();
+        newPasswordPanel.setSize(600,250);
+        newPasswordPanel.setBackground(Color.BLACK);
+        newPasswordPanel.setLayout(null);
 
-    private void addPostARequest(){
-        Home.Right.postARequest.setText("Post");
-        Home.Right.postARequest.setBounds(90, dim[1] - 330, 140, 40);
-        Color green = new Color(50, 145, 35);
-        Home.Right.postARequest.setBackground(green);
-        Home.Right.postARequest.setForeground(Color.WHITE);
-        Home.Right.postARequest.setFont(new Font("Arial", Font.PLAIN, 20));
-        Home.Right.postARequest.setBorder(BorderFactory.createBevelBorder(1));
-    }
+        JLabel passwordLabel1 = new JLabel("New Password: ");
+        passwordLabel1.setFont(new Font("Arial",Font.BOLD,17));
+        passwordLabel1.setForeground(Color.WHITE);
+        passwordLabel1.setBounds(40,40,350,30);
+        newPasswordPanel.add(passwordLabel1);
 
-    private void addReserve(){
-        Home.Right.reserve.setText("Reserve Item");
-        Home.Right.reserve.setBounds(90,dim[1]-400,140,40);
-        Color green = new Color(50, 145, 35);
-        Home.Right.reserve.setBackground(green);
-        Home.Right.reserve.setForeground(Color.WHITE);
-        Home.Right.reserve.setFont(new Font("Arial", Font.PLAIN,20));
-        Home.Right.reserve.setBorder(BorderFactory.createBevelBorder(1));
-    }
+        JPasswordField passwordText1 = new JPasswordField();
+        passwordText1.setFont(new Font("Arial",Font.BOLD,17));
+        Border border = BorderFactory.createLineBorder(Color.WHITE,3);
+        passwordText1.setBorder(border);
+        passwordText1.setBounds(260,40,300,30);
+        newPasswordPanel.add(passwordText1);
 
-    private void addUserHistory(){
-        Home.Right.userHistoryPanel.setSize(262,640);
-        Home.Right.userHistoryPanel.setText("User History\n\n");
+        JLabel passwordLabel2 = new JLabel("Confirm New Password: ");
+        passwordLabel2.setFont(new Font("Arial",Font.BOLD,17));
+        passwordLabel2.setForeground(Color.WHITE);
+        passwordLabel2.setBounds(40,80,350,30);
+        newPasswordPanel.add(passwordLabel2);
 
-        UserHistory.getUserHistory();
-        for(int i=0; i<UserHistory.history.size(); i++){//username,date, msg,itemName, qty
-            String[] data = UserHistory.history.get(i);
-            Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
-        }
+        JPasswordField passwordText2 = new JPasswordField();
+        passwordText2.setFont(new Font("Arial",Font.BOLD,17));
+        passwordText2.setBorder(border);
+        passwordText2.setBounds(260,80,300,30);
+        newPasswordPanel.add(passwordText2);
+
+        JButton confirmButton = new JButton("Confirm");
+        confirmButton.setBounds(40,140,100,50);
+        confirmButton.setBackground(Color.BLACK);
+        confirmButton.setForeground(Color.WHITE);
+        confirmButton.setFont(new Font("Arial",Font.BOLD,17));
+        newPasswordPanel.add(confirmButton);
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setBounds(460,140,100,50);
+        cancelButton.setBackground(Color.BLACK);
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setFont(new Font("Arial",Font.BOLD,17));
+        newPasswordPanel.add(cancelButton);
+
+        JFrame newPasswordFrame = new JFrame();
+        newPasswordFrame.add(newPasswordPanel);
+        newPasswordFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        newPasswordFrame.setBounds(dim[0]/2-300, dim[1]/2-125,600,250);
+        newPasswordFrame.setVisible(true);
+
+        confirmButton.addActionListener(e->{
+            char[] inputPassword1Char = passwordText1.getPassword();
+            String inputPassword1 = new String(inputPassword1Char);
+
+            char[] inputPassword2Char = passwordText2.getPassword();
+            String inputPassword2 = new String(inputPassword2Char);
+
+            if(inputPassword1.isBlank()){
+                JOptionPane.showMessageDialog(newPasswordFrame,"Passwords Cannot be Empty", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            else if (!inputPassword1.equals(inputPassword2)){
+                JOptionPane.showMessageDialog(newPasswordFrame,"Passwords does not match", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                Files.ResetPasswordRequests.setPassword(userNameTextBox.getText(), inputPassword1);
+                Files.ResetPasswordRequests.updateLogin();
+                newPasswordFrame.dispose();
+                JOptionPane.showMessageDialog(newPasswordFrame,"Password Reset was Successful", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        cancelButton.addActionListener(e->newPasswordFrame.dispose());
     }
 
     private class VerifyLogin extends Files.LoginInfo{
