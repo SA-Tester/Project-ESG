@@ -43,9 +43,9 @@ import java.awt.Font;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 
 import java.util.ArrayList;
-import java.time.LocalDate;
 
 public class Home{
     JFrame homeFrame = new JFrame(); //Identifier of Main Window
@@ -91,7 +91,7 @@ public class Home{
     }
 
     public static class Left{
-        public static JButton markAsCompleted = new JButton();
+        public static JButton onGoingButton = new JButton();
         public static JComboBox<Object> locationList;
         public static ArrayList<String> placeMarkNameList;
         public static  ArrayList<String> placeMarkLatList;
@@ -105,7 +105,7 @@ public class Home{
             return completedActions;
         }
 
-       public static int getSelectedIndex(){
+        public static int getSelectedIndex(){
             return selectedIndex;
         }
 
@@ -130,6 +130,7 @@ public class Home{
             locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
             selectedIndex = locationList.getSelectedIndex();
             leftPanel.add(locationList);
+            locationList.addActionListener(e-> BottomBar.setConsole(locationList.getSelectedIndex()));
 
             JButton searchButton = new JButton();
             searchButton.setSize(50,41);
@@ -142,7 +143,7 @@ public class Home{
             completedActions.setBackground(Color.BLACK);
             completedActions.setForeground(Color.GREEN);
             completedActions.setBorder(new EmptyBorder(20,20,20,20));
-            completedActions.setFont(new Font("Arial", Font.PLAIN, 15));
+            completedActions.setFont(new Font("Arial", Font.BOLD, 15));
             completedActions.setText("Latest Completed Actions\n");
             Files.Completed.readFromCompletedFile();
 
@@ -166,8 +167,8 @@ public class Home{
                 searchButton.setIcon(searchIcon);
             }catch (Exception e){e.printStackTrace();}
 
-            markAsCompleted.addActionListener(e -> markAsCompleted());
-            leftPanel.add(markAsCompleted);
+            onGoingButton.addActionListener(e -> markAsCompleted());
+            leftPanel.add(onGoingButton);
             return leftPanel;
         }
         private static void addToCompletedActions(String date, String qty, String item){
@@ -176,7 +177,8 @@ public class Home{
         }
 
         protected static void markAsCompleted(){
-            if (placeMarkNameList.size() > 0) {
+            new AdminPrivileges().createJFrame();
+            /*if (placeMarkNameList.size() > 0) {
                 int index = locationList.getSelectedIndex();
                 Files.Requests.deleteFromRequests(index);
 
@@ -188,20 +190,8 @@ public class Home{
                 placeMarkLatList.remove(index);
                 placeMarkLonList.remove(index);
                 locationList.removeItem(locationList.getSelectedItem());
-            }
+            }*/
         }
-
-        /*private void enableDisableClaim(int selectedIndex){
-            //Get requests list from read placemarks
-            //set enable/ disable to locationlist (combo) with an id
-            //Files.PlaceMarkDetails.requests
-            if(PlaceMarkDetails.requestsList.get(selectedIndex).charAt(0) == 'H'){
-                setDisable = true;
-            }
-            else{
-                setDisable = false;
-            }
-        }*/
     }
 
     //Add map to main window
@@ -218,7 +208,7 @@ public class Home{
     //Add user history panel to main window
     public static class Right{
         public static JButton postARequest = new JButton();
-        public static JButton claimIt = new JButton();
+        public static JButton reserve = new JButton();
         public static JTextArea userHistoryPanel = new JTextArea();
 
         private JPanel addRightPanel(){
@@ -234,26 +224,26 @@ public class Home{
             userHistoryPanel.setBackground(Color.BLACK);
             userHistoryPanel.setForeground(Color.GREEN);
             userHistoryPanel.setBorder(new EmptyBorder(20,20,20,20));
-            userHistoryPanel.setFont(new Font("Arial", Font.PLAIN, 15));
-            userHistoryPanel.append("Login To Contribute\n");
+            userHistoryPanel.setFont(new Font("Arial", Font.BOLD, 15));
+            userHistoryPanel.append("Login To Post/ Claim\n");
             rightPanel.add(userHistoryPanel);
 
-            claimIt.addActionListener(e -> {
-                Left.markAsCompleted();
+            reserve.addActionListener(e -> {
+                /*Left.markAsCompleted();
 
                 LocalDate date = LocalDate.now();
                 int index = Left.getSelectedIndex();
                 String msg = null;
 
-                if(PlaceMarkDetails.requestsList.get(index).charAt(0) == 'H') msg = "GAVE";
+                if(Requests.requestsList.get(index).charAt(0) == 'H') msg = "GAVE";
                 else msg = "CLAIMED";
 
                 String qty = Files.Requests.getQuantity();
                 String itemName = Files.Requests.getItemName();
 
-                addToUserHistory(date.toString(),msg,qty,itemName,true);
+                addToUserHistory(date.toString(),msg,qty,itemName,true);*/
             });
-            rightPanel.add(claimIt);
+            rightPanel.add(reserve);
             return rightPanel;
         }
 
@@ -265,45 +255,83 @@ public class Home{
     }
 
     //Add Bottom Bar to main window
-    private JPanel addBottomBar(){
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(Color.GRAY);
-        bottomPanel.setPreferredSize(new Dimension(dim[0],100));
-        bottomPanel.setLayout(new BorderLayout(5,0));
+    private class BottomBar{
+        static JPanel console = new JPanel();
+        private JPanel addBottomBar(){
+            JPanel bottomPanel = new JPanel();
+            bottomPanel.setBackground(Color.GRAY);
+            bottomPanel.setPreferredSize(new Dimension(dim[0],100));
+            bottomPanel.setLayout(new BorderLayout(5,0));
 
-        JButton homeButton = new JButton();
-        homeButton.setBackground(Color.WHITE);
-        homeButton.setPreferredSize(new Dimension(100,100));
-        bottomPanel.add(homeButton,BorderLayout.WEST);
+            JButton homeButton = new JButton();
+            homeButton.setBackground(Color.WHITE);
+            homeButton.setPreferredSize(new Dimension(100,100));
+            bottomPanel.add(homeButton,BorderLayout.WEST);
 
-        JTextArea console = new JTextArea();
-        console.setPreferredSize(new Dimension(dim[0]-200,80));
-        console.setBackground(Color.BLACK);
-        console.setForeground(Color.WHITE);
-        console.setBorder(new EmptyBorder(20,20,20,20));
-        console.setText("Location:\tItem:\tQuantity:\tPrice:\t");
-        bottomPanel.add(console,BorderLayout.CENTER);
+            console.setPreferredSize(new Dimension(dim[0]-200,80));
+            console.setBackground(Color.BLACK);
+            console.setBorder(new EmptyBorder(20,20,20,20));
+            console.setLayout(new GridLayout(2,10));
+            bottomPanel.add(console,BorderLayout.CENTER);
 
-        JButton loginButton = new JButton();
-        loginButton.setBackground(Color.WHITE);
-        loginButton.setPreferredSize(new Dimension(100,100));
-        bottomPanel.add(loginButton,BorderLayout.EAST);
+            JButton loginButton = new JButton();
+            loginButton.setBackground(Color.WHITE);
+            loginButton.setPreferredSize(new Dimension(100,100));
+            bottomPanel.add(loginButton,BorderLayout.EAST);
 
-        try{
-            Icon homeIcon = new ImageIcon("images/home.png");
-            homeButton.setIcon(homeIcon);
-            Icon loginIcon = new ImageIcon("images/login.png");
-            loginButton.setIcon(loginIcon);
-        }catch (Exception e) {e.printStackTrace();}
+            try{
+                Icon homeIcon = new ImageIcon("images/home.png");
+                homeButton.setIcon(homeIcon);
+                Icon loginIcon = new ImageIcon("images/login.png");
+                loginButton.setIcon(loginIcon);
+            }catch (Exception e) {e.printStackTrace();}
 
-        loginButton.addActionListener(e-> new Login().createJFrame());
+            loginButton.addActionListener(e-> new Login().createJFrame());
 
-        homeButton.addActionListener(e -> {
-            this.homeFrame.dispose();
-            new Home().createHomeInterface();
-        });
+            homeButton.addActionListener(e -> {
+                homeFrame.dispose();
+                new Home().createHomeInterface();
+            });
 
-        return bottomPanel;
+            return bottomPanel;
+        }
+
+        static void setConsole(int selectedIndex){
+            console.removeAll();
+            Files.Requests.readFromRequestsFile(selectedIndex);
+
+            JLabel itemName = new JLabel();
+            JLabel quantity = new JLabel();
+            JLabel province = new JLabel();
+            JLabel district = new JLabel();
+            JLabel city = new JLabel();
+            JLabel price = new JLabel();
+            JLabel status = new JLabel();
+            JLabel name = new JLabel();
+            JLabel contact = new JLabel();
+
+            JLabel[] fields = {itemName,quantity,province,district,city,price,status,name,contact};
+            for(JLabel field: fields){
+                field.setForeground(Color.WHITE);
+                field.setFont(new Font("Arial", Font.BOLD, 15));
+                console.add(field);
+            }
+
+            itemName.setText("Item Name:   " + Files.Requests.getCurrentItemName());
+            quantity.setText("Quantity:   " + Files.Requests.getCurrentQuantity());
+            province.setText("Province:   " + Files.Requests.getCurrentProvince());
+            district.setText("District:   " + Files.Requests.getCurrentDistrict());
+            city.setText("City:     " + Files.Requests.getCurrentCity());
+            price.setText("Price:   " + Files.Requests.getCurrentPrice());
+            status.setText("Status:   " + Files.Requests.getCurrentStatus());
+
+            if(Login.currentLogin != null){
+                Files.SignUpDetails.readSignUpDetails(Login.currentLogin);
+                name.setText("Posted by:   " + Files.SignUpDetails.getName());
+                contact.setText("Contact:   " + Files.SignUpDetails.getTelephoneNumber());
+            }
+        }
+
     }
 
     //Create the Main interface (Home)
@@ -313,7 +341,7 @@ public class Home{
         homePanel.setLayout(new BorderLayout());
 
         homePanel.add(setTitle(),BorderLayout.NORTH);
-        homePanel.add(addBottomBar(),BorderLayout.SOUTH);
+        homePanel.add(new BottomBar().addBottomBar(),BorderLayout.SOUTH);
         homePanel.add(new Left().addLeftPanel(),BorderLayout.WEST);
         homePanel.add(addMap(),BorderLayout.CENTER);
         homePanel.add(new Right().addRightPanel(),BorderLayout.EAST);
@@ -326,7 +354,6 @@ public class Home{
     }
 
     private static class PlaceMarkDetails extends Files.PlaceMarkDetails{
-        static ArrayList<String> requestsList = Files.PlaceMarkDetails.requests;
         static ArrayList <String> placeMarkNameList = Files.PlaceMarkDetails.placeMarkNameList;
         static ArrayList <String> placeMarkLatList = Files.PlaceMarkDetails.placeMarkLatList;
         static ArrayList <String> placeMarkLonList = Files.PlaceMarkDetails.placeMarkLonList;

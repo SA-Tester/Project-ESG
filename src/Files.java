@@ -21,9 +21,11 @@ public class Files {
                     String[] data = scanner.nextLine().split(",");
                     if(inputUsername.equals(data[0]) && inputPassword.equals(data[1]) && data[2].equals("admin")){
                         msg = "ADMIN PRIVILEGES";
+                        Login.currentLogin = inputUsername;
                     }
                     else if(inputUsername.equals(data[0]) && inputPassword.equals(data[1]) && data[2].equals("user")){
                         msg = "USER PRIVILEGES";
+                        Login.currentLogin = inputUsername;
                     }
                 }
                 scanner.close();
@@ -43,37 +45,12 @@ public class Files {
                 e.printStackTrace();
             }
         }
-
-        protected static void updateCurrentLogin(String username){
-            try{
-                FileWriter currentLoginFile = new FileWriter("data/Current_Login.csv");
-                String formattedString = String.format("%s\n",username);
-                currentLoginFile.write(formattedString);
-                currentLoginFile.close();
-
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-
-        protected static String getCurrentLogin(){
-            String data = null;
-            try{
-                File currentLoginFile = new File("data/Current_Login.csv");
-                Scanner scanner = new Scanner(currentLoginFile);
-                while(scanner.hasNextLine()){
-                    data = scanner.nextLine();
-                }
-                scanner.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-            return data;
-        }
     }
 
     protected static class SignUpDetails{
         private static ArrayList <String> storedUsernames = new ArrayList<>();
+        private static String name;
+        private static String telephoneNumber;
         private static String userProvince;
         private static String userDistrict;
         private static String userCity;
@@ -85,6 +62,8 @@ public class Files {
                     String[] data = scanner.nextLine().split(",");
                     storedUsernames.add(data[3]);
                     if(data[3].equals(username)){
+                        name = data[0];
+                        telephoneNumber = data[2];
                         userProvince = data[4];
                         userDistrict = data[5];
                         userCity = data[6];
@@ -108,6 +87,8 @@ public class Files {
             }
             return storedUsernames;
         }
+        static String getName(){return name;}
+        static String getTelephoneNumber(){return telephoneNumber;}
         static String getUserProvince(){
             return userProvince;
         }
@@ -118,7 +99,6 @@ public class Files {
             return userCity;
         }
 
-        //name,address,mobile,username,password1,province, district, city, gNOffice,privilegeType
         protected static void writeToSignUpDetails(String name, String address, String mobile, String username, String province, String district, String city , String gNOffice){
             String formattedString = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",name,address,mobile,username,province,district,city,gNOffice);
 
@@ -155,8 +135,6 @@ public class Files {
         }
     }
     protected static class PlaceMarkDetails{
-        static ArrayList <String> requests = new ArrayList<>();
-        static ArrayList <String> users = new ArrayList<>();
         static ArrayList <String> placeMarkNameList = new ArrayList<>();
         static ArrayList <String> placeMarkLatList = new ArrayList<>();
         static ArrayList <String> placeMarkLonList = new ArrayList<>();
@@ -166,11 +144,9 @@ public class Files {
                 Scanner scanner = new Scanner(placeMarks);
                 while(scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
-                    requests.add(data[0]);
-                    users.add(data[1]);
-                    placeMarkNameList.add(data[2]);
-                    placeMarkLatList.add(data[3]);
-                    placeMarkLonList.add(data[4]);
+                    placeMarkNameList.add(data[0]);
+                    placeMarkLatList.add(data[1]);
+                    placeMarkLonList.add(data[2]);
                 }
                 scanner.close();
             }catch (IOException e){
@@ -231,16 +207,49 @@ public class Files {
     }
 
     protected static class Requests{
+        static ArrayList <String> requests = new ArrayList<>();
+
+        private static String currentItemName = null;
+        private static String currentQuantity = null;
+        private static String currentProvince = null;
+        private static String currentDistrict = null;
+        private static String currentCity = null;
+        private static String currentPrice = null;
+        private static String currentStatus = null;
         private static String itemName = null;
         private static String quantity = null;
         private static int haveItRequests = 0;
         private static int wantItRequests = 0;
-        protected static void writeToRequestFile(String reqID, String username, String item, String quantity, String province, String district, String city, String price, String needOrHave){
+        protected static void writeToRequestFile(String reqID, String username, String item, String quantity, String province, String district, String city,
+                                                 String price, String needOrHave){
             try{
                 FileWriter requestsFile = new FileWriter("data/Requests.csv", true);
                 String data = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", reqID, username, item, quantity,province,district,city,price,needOrHave);
                 requestsFile.append(data);
                 requestsFile.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        protected static void readFromRequestsFile(int selectedIndex){
+            int lineNumber = 0;
+            try{
+                File requestsFile = new File("data/Requests.csv");
+                Scanner scanner = new Scanner(requestsFile);
+                while(scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    if(selectedIndex == lineNumber){
+                        currentItemName = data[2];
+                        currentQuantity = data[3];
+                        currentProvince = data[4];
+                        currentDistrict = data[5];
+                        currentCity = data[6];
+                        currentPrice = data[7];
+                        currentStatus = data[8];
+                    }
+                    lineNumber++;
+                }
             }catch (IOException e){
                 e.printStackTrace();
             }
@@ -290,31 +299,36 @@ public class Files {
                     }
                     currentLine++;
                 }
-                requestsFileR.delete();
-                newRequestsFileR.renameTo(requestsFileR);
                 scanner.close();
                 newRequestsFileW.close();
                 completedFile.close();
+                requestsFileR.delete();
+                newRequestsFileR.renameTo(requestsFileR);
 
             }catch (IOException e){
                 e.printStackTrace();
             }
         }
-
         protected static String getItemName(){
             return itemName;
         }
-
         protected static String getQuantity(){
             return quantity;
         }
         protected static int getNoOfHaveItRequests(){
             return haveItRequests;
         }
-
         protected static int getNoOfWantItRequests(){
             return wantItRequests;
         }
+
+        public static String getCurrentItemName() {return currentItemName;}
+        public static String getCurrentQuantity(){return  currentQuantity;}
+        public static String getCurrentProvince(){return currentProvince;}
+        public static String getCurrentDistrict(){return currentDistrict;}
+        public static String getCurrentCity(){return currentCity;}
+        public static String getCurrentPrice(){return currentPrice;}
+        public static String getCurrentStatus(){return currentStatus;}
     }
 
     protected static class Completed{
@@ -344,7 +358,7 @@ public class Files {
             if(writeToFile){
                 try{
                     FileWriter userHistoryFile = new FileWriter("data/User History.csv",true);
-                    String dataLine = String.format("%s,%s,%s,%s,%s\n",LoginInfo.getCurrentLogin(),date,msg,itemName,qty);
+                    String dataLine = String.format("%s,%s,%s,%s,%s\n",Login.currentLogin,date,msg,itemName,qty);
                     userHistoryFile.append(dataLine);
                     userHistoryFile.close();
                 }catch (IOException e){
@@ -367,6 +381,48 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    protected static class ResetPasswordRequests{
+        private static String newPassword;
+        private static String inputUsername;
+
+        //update login info file
+        static void updateLogin(){
+            String dataLine;
+
+            try{
+                FileWriter newLoginFileWrite = new FileWriter("data/LoginInfo2.csv",true);
+                File loginFile = new File("data/LoginInfo.csv");
+                Scanner scanner = new Scanner(loginFile);
+
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+
+                    if(data[0].equals(inputUsername)){
+                        dataLine = String.format("%s,%s,%s\n", inputUsername, newPassword, data[2]);
+                    }
+                    else{
+                        dataLine = String.format("%s,%s,%s\n", data[0], data[1], data[2]);
+                    }
+                    newLoginFileWrite.append(dataLine);
+                }
+                scanner.close();
+                newLoginFileWrite.close();
+
+                File newLoginFileRead = new File("data/LoginInfo2.csv");
+                newLoginFileRead.renameTo(loginFile);
+                newLoginFileRead.delete();
+
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        public static void setPassword(String username, String pwd){
+            inputUsername = username;
+            newPassword = pwd;
         }
     }
 }
