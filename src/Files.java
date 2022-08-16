@@ -208,7 +208,8 @@ public class Files {
 
     protected static class Requests{
         static ArrayList <String> requests = new ArrayList<>();
-
+        private static String currentRequestID = null;
+        private static String currentUsername = null;
         private static String currentItemName = null;
         private static String currentQuantity = null;
         private static String currentProvince = null;
@@ -216,8 +217,8 @@ public class Files {
         private static String currentCity = null;
         private static String currentPrice = null;
         private static String currentStatus = null;
-        private static String itemName = null;
-        private static String quantity = null;
+        /*private static String itemName = null;
+        private static String quantity = null;*/
         private static int haveItRequests = 0;
         private static int wantItRequests = 0;
         protected static void writeToRequestFile(String reqID, String username, String item, String quantity, String province, String district, String city,
@@ -240,6 +241,8 @@ public class Files {
                 while(scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
                     if(selectedIndex == lineNumber){
+                        currentRequestID = data[0];
+                        currentUsername = data[1];
                         currentItemName = data[2];
                         currentQuantity = data[3];
                         currentProvince = data[4];
@@ -288,8 +291,8 @@ public class Files {
                 while(scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
                     if(index == currentLine){
-                        itemName = data[2];
-                        quantity = data[3];
+                        //itemName = data[2];
+                        //quantity = data[3];
                         String deletedLine = String.format("%s,%s,%s\n", date, data[2], data[3]);
                         completedFile.append(deletedLine);
                     }
@@ -309,12 +312,7 @@ public class Files {
                 e.printStackTrace();
             }
         }
-        protected static String getItemName(){
-            return itemName;
-        }
-        protected static String getQuantity(){
-            return quantity;
-        }
+
         protected static int getNoOfHaveItRequests(){
             return haveItRequests;
         }
@@ -322,6 +320,8 @@ public class Files {
             return wantItRequests;
         }
 
+        public static String getCurrentRequestID() {return currentRequestID;}
+        public static String getCurrentUsername(){return currentUsername;}
         public static String getCurrentItemName() {return currentItemName;}
         public static String getCurrentQuantity(){return  currentQuantity;}
         public static String getCurrentProvince(){return currentProvince;}
@@ -423,6 +423,78 @@ public class Files {
         public static void setPassword(String username, String pwd){
             inputUsername = username;
             newPassword = pwd;
+        }
+    }
+
+    protected static class Reserved{
+        private static ArrayList<String[]> transactionList = new ArrayList<>();
+        private static String reqID = null;
+        private static String postedByUsername = null;
+        private static String postedByTelephone = null;
+        private static String reservedByUsername = null;
+        private static String reservedByTelephone = null;
+        private static String postedByProvince = null;
+        private static String postedByDistrict = null;
+        private static String postedByCity = null;
+        
+        public static void writeToReservedFile(){
+            try{
+                FileWriter reservedFile = new FileWriter("data/Reserved.csv", true);
+                String dataLine = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
+                        reqID,postedByUsername,postedByTelephone,reservedByUsername,reservedByTelephone,postedByProvince,postedByDistrict,postedByCity);
+                reservedFile.append(dataLine);
+                reservedFile.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        public static void readFromReservedFile(){
+            try{
+                File reservedFile = new File("data/Reserved.csv");
+                Scanner scanner = new Scanner(reservedFile);
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    transactionList.add(data);
+                }
+                scanner.close();
+            }catch (IOException e){e.printStackTrace();}
+        }
+
+        public static void setReqID(String reqID){
+            Reserved.reqID = reqID;
+        }
+
+        public static void setPostedByUsername(String username){
+            Reserved.postedByUsername = username;
+        }
+
+        public static void setPostedByTelephone(String telephone){
+            Reserved.postedByTelephone = telephone;
+        }
+
+        public static void setReservedByUsername(String username){
+            Reserved.reservedByUsername = username;
+        }
+
+        public static void setReservedByTelephone(String telephone){
+            Reserved.reservedByTelephone = telephone;
+        }
+
+        public static void setPostedByProvince(String province){
+            Reserved.postedByProvince = province;
+        }
+
+        public static void setPostedByDistrict(String district){
+            Reserved.postedByDistrict = district;
+        }
+
+        public static void setPostedByCity(String city){
+            Reserved.postedByCity = city;
+        }
+
+        public static ArrayList<String[]> getTransactionList(){
+            return transactionList;
         }
     }
 }

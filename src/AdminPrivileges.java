@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
 
 public class AdminPrivileges extends UserInterfaces{
     JFrame adminFrame = new JFrame();
@@ -53,8 +54,16 @@ public class AdminPrivileges extends UserInterfaces{
     }
 
     JScrollPane createJTable(){
-        String[][] data = {{"H1","hello","0451232444","yellow","0778945221", "central", "Kandy","Ampitiya"}};
         String[] columns = {"Request ID", "Posted By", "Telephone", "Reserved By", "Telephone", "Transferred Province", "Transferred District", "Transferred City"};
+
+        Files.Reserved.readFromReservedFile();
+        ArrayList<String[]> dataList = Files.Reserved.getTransactionList();
+        String data[][] = new String[dataList.size()][8];
+        for(int i=0; i<dataList.size(); i++){
+            for(int j=0; j<8; j++){
+                data[i][j] = dataList.get(i)[j];
+            }
+        }
 
         JTable transferTable = new JTable(data, columns);
         transferTable.setBounds(50,100,width-100,height-300);

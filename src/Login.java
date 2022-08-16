@@ -58,12 +58,14 @@ public class Login extends UserInterfaces{
                 addPostARequest();
                 addReserve();
                 addUserHistory();
+                addReservedActionsPanel();
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
                 addPostARequest();
                 addReserve();
                 addUserHistory();
+                addReservedActionsPanel();
                 loginFrame.dispose();
             }
             else{
@@ -219,7 +221,7 @@ public class Login extends UserInterfaces{
     }
 
     private void addUserHistory(){
-        Home.Right.userHistoryPanel.setSize(262,640);
+        Home.Right.userHistoryPanel.setSize(262,300);
         Home.Right.userHistoryPanel.setText("User History\n\n");
 
         UserHistory.getUserHistory();
@@ -227,6 +229,11 @@ public class Login extends UserInterfaces{
             String[] data = UserHistory.history.get(i);
             Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
         }
+    }
+
+    private void addReservedActionsPanel(){
+        Home.Right.reservedActionsPanel.setSize(262,320);
+        Home.Right.reservedActionsPanel.setText("Reserved Transactions\n");
     }
 
     private void showResetPasswordDialog(){

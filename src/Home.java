@@ -36,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.Icon;
 import javax.swing.WindowConstants;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 
 import java.awt.Component;
 import java.awt.Color;
@@ -48,7 +49,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 
 public class Home{
-    JFrame homeFrame = new JFrame(); //Identifier of Main Window
+    static JFrame homeFrame = new JFrame(); //Identifier of Main Window
 
     protected int[] dim = getScreenDimensions();////Array holding screen width and height. Only used by hte Home class
     static MapTemplate mp = new MapTemplate();
@@ -128,7 +129,6 @@ public class Home{
             locationList.setBounds(20, 20, 200, 40);
             locationList.setFont(new Font("Arial",Font.PLAIN,18));
             locationList.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
-            selectedIndex = locationList.getSelectedIndex();
             leftPanel.add(locationList);
             locationList.addActionListener(e-> BottomBar.setConsole(locationList.getSelectedIndex()));
 
@@ -156,6 +156,7 @@ public class Home{
 
             searchButton.addActionListener(e -> {
                 if(locationList.getSelectedIndex() > -1){
+                    selectedIndex = locationList.getSelectedIndex();
                     selectedLat = Double.parseDouble(placeMarkLatList.get(locationList.getSelectedIndex()));
                     selectedLon = Double.parseDouble(placeMarkLonList.get(locationList.getSelectedIndex()));
                     mp.goTo(selectedLat,selectedLon);
@@ -210,6 +211,7 @@ public class Home{
         public static JButton postARequest = new JButton();
         public static JButton reserve = new JButton();
         public static JTextArea userHistoryPanel = new JTextArea();
+        public static JTextArea reservedActionsPanel = new JTextArea();
 
         private JPanel addRightPanel(){
             JPanel rightPanel = new JPanel();
@@ -228,20 +230,43 @@ public class Home{
             userHistoryPanel.append("Login To Post/ Claim\n");
             rightPanel.add(userHistoryPanel);
 
+            reservedActionsPanel.setBounds(20,340,262,300);
+            reservedActionsPanel.setBackground(Color.BLACK);
+            reservedActionsPanel.setForeground(Color.GREEN);
+            reservedActionsPanel.setBorder(new EmptyBorder(20,20,20,20));
+            reservedActionsPanel.setFont(new Font("Arial", Font.BOLD, 15));
+            rightPanel.add(reservedActionsPanel);
+
             reserve.addActionListener(e -> {
-                /*Left.markAsCompleted();
+                Files.Requests.readFromRequestsFile(Left.selectedIndex);
 
-                LocalDate date = LocalDate.now();
-                int index = Left.getSelectedIndex();
-                String msg = null;
+                if(!Login.currentLogin.equals(Files.Requests.getCurrentUsername())){
+                    Files.Reserved.setReqID(Files.Requests.getCurrentRequestID());
 
-                if(Requests.requestsList.get(index).charAt(0) == 'H') msg = "GAVE";
-                else msg = "CLAIMED";
+                    //Posted By Details
+                    Files.Reserved.setPostedByUsername(Files.Requests.getCurrentUsername());
+                    Files.SignUpDetails.readSignUpDetails(Files.Requests.getCurrentUsername());
+                    Files.Reserved.setPostedByTelephone(Files.SignUpDetails.getTelephoneNumber());
+                    Files.Reserved.setPostedByProvince(Files.Requests.getCurrentProvince());
+                    Files.Reserved.setPostedByDistrict(Files.Requests.getCurrentDistrict());
+                    Files.Reserved.setPostedByCity(Files.Requests.getCurrentCity());
 
-                String qty = Files.Requests.getQuantity();
-                String itemName = Files.Requests.getItemName();
+                    //Reserved By Details
+                    Files.Reserved.setReservedByUsername(Login.currentLogin);
+                    Files.SignUpDetails.readSignUpDetails(Login.currentLogin);
+                    Files.Reserved.setReservedByTelephone(Files.SignUpDetails.getTelephoneNumber());
 
-                addToUserHistory(date.toString(),msg,qty,itemName,true);*/
+                    //Writing the details to a File
+                    Files.Reserved.writeToReservedFile();
+                    Files.SignUpDetails.readSignUpDetails(Files.Requests.getCurrentUsername());
+                    JOptionPane.showMessageDialog(homeFrame,"Transaction reserved successfully", "Information", JOptionPane.INFORMATION_MESSAGE);
+                    reservedActionsPanel.append("\nItem Name: " + Files.Requests.getCurrentItemName() + "\n" + "Name: " + Files.SignUpDetails.getName() + "\n"
+                           + "Telephone: " + Files.SignUpDetails.getTelephoneNumber() + "\n");
+                }
+                else{
+                    System.out.println(Login.currentLogin + "," + Files.Requests.getCurrentUsername() + "," + Left.selectedIndex);
+                    JOptionPane.showMessageDialog(homeFrame,"You can't reserve your own transactions", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             });
             rightPanel.add(reserve);
             return rightPanel;
@@ -326,7 +351,7 @@ public class Home{
             status.setText("Status:   " + Files.Requests.getCurrentStatus());
 
             if(Login.currentLogin != null){
-                Files.SignUpDetails.readSignUpDetails(Login.currentLogin);
+                Files.SignUpDetails.readSignUpDetails(Files.Requests.getCurrentUsername());
                 name.setText("Posted by:   " + Files.SignUpDetails.getName());
                 contact.setText("Contact:   " + Files.SignUpDetails.getTelephoneNumber());
             }
