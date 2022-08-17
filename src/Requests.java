@@ -76,8 +76,6 @@ public class Requests extends UserInterfaces{
         needItButton.addActionListener(e -> setRequestToNeedIt());
 
         confirm.addActionListener(e -> {
-            //Post the Request to Map, JTextArea, Update Places List on left (post co-ords to placeMark file),
-            //Get user inputs and save to a file
             String itemName = itemNameTextBox.getText();
             String quantity = quantityTextBox.getText();
             String preferredProvince = Objects.requireNonNull(preferredProvinceCombo.getSelectedItem()).toString();
@@ -96,7 +94,7 @@ public class Requests extends UserInterfaces{
             }
 
             int selectedCityIndex = preferredCityCombo.getSelectedIndex();
-            new MapTemplate().addPlaceMark(CityCoordinates.getLatitude(selectedCityIndex),CityCoordinates.getLongitude(selectedCityIndex),preferredCity, true);
+            new MapTemplate().addPlaceMark(CityCoordinates.getLatitude(selectedCityIndex),CityCoordinates.getLongitude(selectedCityIndex),preferredCity, request,true);
             Home.Left.placeMarkNameList.add(preferredCity);
             Home.Left.placeMarkLatList.add(Double.toString(CityCoordinates.getLatitude(selectedCityIndex)));
             Home.Left.placeMarkLonList.add(Double.toString(CityCoordinates.getLongitude(selectedCityIndex)));

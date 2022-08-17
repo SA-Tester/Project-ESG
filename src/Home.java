@@ -1,28 +1,3 @@
-/*
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.border.EmptyBorder;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.Icon;
-import javax.swing.WindowConstants;
-import javax.swing.border.Border;
-
-
-import java.awt.Component;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.BorderLayout;
-*/
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +12,7 @@ import javax.swing.Icon;
 import javax.swing.WindowConstants;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 import java.awt.Component;
 import java.awt.Color;
@@ -157,6 +133,7 @@ public class Home{
             searchButton.addActionListener(e -> {
                 if(locationList.getSelectedIndex() > -1){
                     selectedIndex = locationList.getSelectedIndex();
+                    Home.Right.reserve.setEnabled(true);
                     selectedLat = Double.parseDouble(placeMarkLatList.get(locationList.getSelectedIndex()));
                     selectedLon = Double.parseDouble(placeMarkLonList.get(locationList.getSelectedIndex()));
                     mp.goTo(selectedLat,selectedLon);
@@ -168,41 +145,45 @@ public class Home{
                 searchButton.setIcon(searchIcon);
             }catch (Exception e){e.printStackTrace();}
 
-            onGoingButton.addActionListener(e -> markAsCompleted());
+            onGoingButton.addActionListener(e -> showReservedActions());
             leftPanel.add(onGoingButton);
             return leftPanel;
         }
-        private static void addToCompletedActions(String date, String qty, String item){
+        protected static void addToCompletedActions(String date, String qty, String item){
             completedActions.append("\nDate: " + date + "\n");
             completedActions.append(qty + " - " + item + " - Transferred\n\n");
         }
 
-        protected static void markAsCompleted(){
+        protected static void showReservedActions(){
             new AdminPrivileges().createJFrame();
-            /*if (placeMarkNameList.size() > 0) {
-                int index = locationList.getSelectedIndex();
-                Files.Requests.deleteFromRequests(index);
-
-                LocalDate date = LocalDate.now();
-                addToCompletedActions(date.toString(), Files.Requests.getItemName(), Files.Requests.getQuantity());
-
-                mp.removePlaceMark(selectedLat, selectedLon);
-                placeMarkNameList.remove(index);
-                placeMarkLatList.remove(index);
-                placeMarkLonList.remove(index);
-                locationList.removeItem(locationList.getSelectedItem());
-            }*/
         }
     }
 
     //Add map to main window
     private JPanel addMap() {
         JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(dim[0] - 670, dim[1] - 260), true);
-        for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
-            mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
-                    PlaceMarkDetails.placeMarkNameList.get(i), false);
-        }
 
+        for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
+            Files.Requests.readFromRequestsFile(i);
+            Files.Reserved.readFromReservedFile();
+
+            if(Files.Reserved.getTransactionList().size() == 0){
+                mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
+                        PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
+            }
+            else{
+                for(int j=0; j<Files.Reserved.getTransactionList().size(); j++){
+                    if(Files.Reserved.getTransactionList().get(j)[0].equals(Files.Requests.getCurrentRequestID())){
+                        mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
+                                PlaceMarkDetails.placeMarkNameList.get(i), "RESERVED",false);
+                    }
+                    else{
+                        mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
+                                PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
+                    }
+                }
+            }
+        }
         return wwdPanel;
     }
 
@@ -210,7 +191,9 @@ public class Home{
     public static class Right{
         public static JButton postARequest = new JButton();
         public static JButton reserve = new JButton();
+        public static JScrollPane historyScroll;
         public static JTextArea userHistoryPanel = new JTextArea();
+        public static JScrollPane reservedScroll;
         public static JTextArea reservedActionsPanel = new JTextArea();
 
         private JPanel addRightPanel(){
@@ -228,14 +211,20 @@ public class Home{
             userHistoryPanel.setBorder(new EmptyBorder(20,20,20,20));
             userHistoryPanel.setFont(new Font("Arial", Font.BOLD, 15));
             userHistoryPanel.append("Login To Post/ Claim\n");
-            rightPanel.add(userHistoryPanel);
+
+            historyScroll = new JScrollPane(userHistoryPanel);
+            historyScroll.setBounds(20,20,262,775);
+            rightPanel.add(historyScroll);
 
             reservedActionsPanel.setBounds(20,340,262,300);
             reservedActionsPanel.setBackground(Color.BLACK);
             reservedActionsPanel.setForeground(Color.GREEN);
             reservedActionsPanel.setBorder(new EmptyBorder(20,20,20,20));
             reservedActionsPanel.setFont(new Font("Arial", Font.BOLD, 15));
-            rightPanel.add(reservedActionsPanel);
+
+            reservedScroll = new JScrollPane(reservedActionsPanel);
+            reservedScroll.setBounds(20,340,262,300);
+            rightPanel.add(reservedScroll);
 
             reserve.addActionListener(e -> {
                 Files.Requests.readFromRequestsFile(Left.selectedIndex);
@@ -259,12 +248,13 @@ public class Home{
                     //Writing the details to a File
                     Files.Reserved.writeToReservedFile();
                     Files.SignUpDetails.readSignUpDetails(Files.Requests.getCurrentUsername());
-                    JOptionPane.showMessageDialog(homeFrame,"Transaction reserved successfully", "Information", JOptionPane.INFORMATION_MESSAGE);
-                    reservedActionsPanel.append("\nItem Name: " + Files.Requests.getCurrentItemName() + "\n" + "Name: " + Files.SignUpDetails.getName() + "\n"
-                           + "Telephone: " + Files.SignUpDetails.getTelephoneNumber() + "\n");
+                    if(Files.Reserved.state){
+                        JOptionPane.showMessageDialog(homeFrame,"Transaction reserved successfully", "Information", JOptionPane.INFORMATION_MESSAGE);
+                        reservedActionsPanel.append("\nItem Name: " + Files.Requests.getCurrentItemName() + "\n" + "Name: " + Files.SignUpDetails.getName() + "\n"
+                                + "Telephone: " + Files.SignUpDetails.getTelephoneNumber() + "\n");
+                    }
                 }
                 else{
-                    System.out.println(Login.currentLogin + "," + Files.Requests.getCurrentUsername() + "," + Left.selectedIndex);
                     JOptionPane.showMessageDialog(homeFrame,"You can't reserve your own transactions", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
@@ -273,7 +263,7 @@ public class Home{
         }
 
         protected static void addToUserHistory(String date, String msg, String qty, String itemName, boolean writeToFile){
-            Files.UserHistory.writeToUserHistory(date,msg,itemName,qty,writeToFile);
+            Files.UserHistory.writeToUserHistory(Login.currentLogin, date,msg,itemName,qty,writeToFile);
             userHistoryPanel.append("\nDate: " + date + "\n");
             userHistoryPanel.append(msg + " - " + qty + " - " + itemName + "\n\n");
         }
@@ -314,8 +304,8 @@ public class Home{
             loginButton.addActionListener(e-> new Login().createJFrame());
 
             homeButton.addActionListener(e -> {
-                homeFrame.dispose();
-                new Home().createHomeInterface();
+                homeFrame.repaint();
+                homeFrame.revalidate();
             });
 
             return bottomPanel;

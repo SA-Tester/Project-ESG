@@ -1,3 +1,5 @@
+import javax.swing.JOptionPane;
+
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -48,7 +50,7 @@ public class Files {
     }
 
     protected static class SignUpDetails{
-        private static ArrayList <String> storedUsernames = new ArrayList<>();
+        private static final ArrayList <String> storedUsernames = new ArrayList<>();
         private static String name;
         private static String telephoneNumber;
         private static String userProvince;
@@ -138,6 +140,9 @@ public class Files {
         static ArrayList <String> placeMarkNameList = new ArrayList<>();
         static ArrayList <String> placeMarkLatList = new ArrayList<>();
         static ArrayList <String> placeMarkLonList = new ArrayList<>();
+        static private double selectedLat;
+        static private double selectedLon;
+
         static void readFromPlaceMarkDetails(){
             try {
                 File placeMarks = new File("data/PlaceMarkDetails.csv");
@@ -154,6 +159,25 @@ public class Files {
             }
         }
 
+        static void readFromPlaceMarkDetails(int index){
+            int lineNo = 0;
+            try{
+                File placeMarks = new File("data/PlaceMarkDetails.csv");
+                Scanner scanner = new Scanner(placeMarks);
+
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    if(index == lineNo){
+                        selectedLat = Double.parseDouble(data[1]);
+                        selectedLon = Double.parseDouble(data[2]);
+                    }
+                    lineNo++;
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
         static void writeToPlaceMarkDetails(ArrayList<String> placeMarkData){
             try{
                 FileWriter placeMarkFile = new FileWriter("data/PlaceMarkDetails.csv");
@@ -164,6 +188,14 @@ public class Files {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+
+        public double getSelectedLat(){
+            return selectedLat;
+        }
+
+        public double getSelectedLon(){
+            return selectedLon;
         }
     }
 
@@ -217,8 +249,9 @@ public class Files {
         private static String currentCity = null;
         private static String currentPrice = null;
         private static String currentStatus = null;
-        /*private static String itemName = null;
-        private static String quantity = null;*/
+        private static int lineNumber = 0;
+        static String deletedItemName = null;
+        static String deletedQuantity = null;
         private static int haveItRequests = 0;
         private static int wantItRequests = 0;
         protected static void writeToRequestFile(String reqID, String username, String item, String quantity, String province, String district, String city,
@@ -258,6 +291,23 @@ public class Files {
             }
         }
 
+        protected static void readFromRequestsFile(String reqID){
+            int lineNo = 0;
+            try{
+                File requestsFile = new File("data/Requests.csv");
+                Scanner scanner = new Scanner(requestsFile);
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    if (data[0].equals(reqID)){
+                        lineNumber = lineNo;
+                    }
+                    lineNo ++;
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
         protected static void getRequestCount(){
             try{
                 File requestsFile = new File("data/Requests.csv");
@@ -277,8 +327,7 @@ public class Files {
             }
         }
 
-        protected static void deleteFromRequests(int index){
-            int currentLine = 0;
+        protected static void deleteFromRequests(String reqID){
             try{
                 File requestsFileR = new File("data/Requests.csv");
                 File newRequestsFileR = new File("data/newRequests.csv");
@@ -290,9 +339,9 @@ public class Files {
                 LocalDate date = LocalDate.now();
                 while(scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
-                    if(index == currentLine){
-                        //itemName = data[2];
-                        //quantity = data[3];
+                    if(reqID.equals(data[0])){
+                        deletedItemName = data[2];
+                        deletedQuantity = data[3];
                         String deletedLine = String.format("%s,%s,%s\n", date, data[2], data[3]);
                         completedFile.append(deletedLine);
                     }
@@ -300,13 +349,12 @@ public class Files {
                         String dataLine = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]);
                         newRequestsFileW.append(dataLine);
                     }
-                    currentLine++;
                 }
                 scanner.close();
                 newRequestsFileW.close();
                 completedFile.close();
-                requestsFileR.delete();
                 newRequestsFileR.renameTo(requestsFileR);
+                newRequestsFileR.delete();
 
             }catch (IOException e){
                 e.printStackTrace();
@@ -319,7 +367,6 @@ public class Files {
         protected static int getNoOfWantItRequests(){
             return wantItRequests;
         }
-
         public static String getCurrentRequestID() {return currentRequestID;}
         public static String getCurrentUsername(){return currentUsername;}
         public static String getCurrentItemName() {return currentItemName;}
@@ -329,6 +376,7 @@ public class Files {
         public static String getCurrentCity(){return currentCity;}
         public static String getCurrentPrice(){return currentPrice;}
         public static String getCurrentStatus(){return currentStatus;}
+        public static int getLineNumber(){return lineNumber;}
     }
 
     protected static class Completed{
@@ -354,11 +402,11 @@ public class Files {
 
     protected static class UserHistory{
         static ArrayList <String[]> userHistoryList = new ArrayList<>();//username,date, msg,itemName, qty
-        protected static void writeToUserHistory(String date,String msg, String itemName, String qty, boolean writeToFile){
+        protected static void writeToUserHistory(String username, String date,String msg, String itemName, String qty, boolean writeToFile){
             if(writeToFile){
                 try{
                     FileWriter userHistoryFile = new FileWriter("data/User History.csv",true);
-                    String dataLine = String.format("%s,%s,%s,%s,%s\n",Login.currentLogin,date,msg,itemName,qty);
+                    String dataLine = String.format("%s,%s,%s,%s,%s\n",username,date,msg,itemName,qty);
                     userHistoryFile.append(dataLine);
                     userHistoryFile.close();
                 }catch (IOException e){
@@ -427,7 +475,7 @@ public class Files {
     }
 
     protected static class Reserved{
-        private static ArrayList<String[]> transactionList = new ArrayList<>();
+        private static final ArrayList<String[]> transactionList = new ArrayList<>();
         private static String reqID = null;
         private static String postedByUsername = null;
         private static String postedByTelephone = null;
@@ -436,29 +484,110 @@ public class Files {
         private static String postedByProvince = null;
         private static String postedByDistrict = null;
         private static String postedByCity = null;
-        
+        static boolean state = true;
+
         public static void writeToReservedFile(){
-            try{
-                FileWriter reservedFile = new FileWriter("data/Reserved.csv", true);
-                String dataLine = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
-                        reqID,postedByUsername,postedByTelephone,reservedByUsername,reservedByTelephone,postedByProvince,postedByDistrict,postedByCity);
-                reservedFile.append(dataLine);
-                reservedFile.close();
-            }catch (IOException e){
-                e.printStackTrace();
+            readFromReservedFile();
+            for (String[] strings : transactionList) {
+                if (strings[0].equals(reqID)) {
+                    state = false;
+                    break;
+                } else {
+                    state = true;
+                }
+            }
+
+            if(!state){
+                Home.Right.reserve.setEnabled(false);
+                JOptionPane.showMessageDialog(Home.homeFrame,"This item is already reserved", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                try{
+                    FileWriter reservedFile = new FileWriter("data/Reserved.csv", true);
+                    String dataLine = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
+                            reqID,postedByUsername,postedByTelephone,reservedByUsername,reservedByTelephone,postedByProvince,postedByDistrict,postedByCity);
+                    reservedFile.append(dataLine);
+                    reservedFile.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
             }
         }
 
         public static void readFromReservedFile(){
             try{
+                transactionList.clear();
                 File reservedFile = new File("data/Reserved.csv");
                 Scanner scanner = new Scanner(reservedFile);
+
                 while (scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
                     transactionList.add(data);
                 }
                 scanner.close();
             }catch (IOException e){e.printStackTrace();}
+        }
+
+        public static void deleteFromReservedFile(String reqID){
+            File reservedFileR = new File("data/Reserved.csv");
+
+            try{
+                FileWriter reservedFileTempW = new FileWriter("data/ReservedTemp.csv",true);
+
+                Scanner scanner = new Scanner(reservedFileR);
+                while (scanner.hasNextLine()){
+                    String[] data = scanner.nextLine().split(",");
+                    String dataLine = String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", data[0],data[1],data[2],data[3],data[4],data[5],data[6],data[7]);
+
+                    if(!data[0].equals(reqID)){
+                        reservedFileTempW.append(dataLine);
+                    }
+                }
+                scanner.close();
+                reservedFileTempW.close();
+
+                File reservedFileTemp = new File("data/ReservedTemp.csv");
+                reservedFileTemp.renameTo(reservedFileR);
+                reservedFileTemp.delete();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        protected static ArrayList<String[]> getUserReservedTransactions(String reservedByUsername){
+            //Item Name, Posted By Name, Posted By Telephone
+            ArrayList<String[]> userReservedTransactions = new ArrayList<>();
+
+            try{
+                File transactionFile = new File("data/Reserved.csv");
+                File requestsFile = new File("data/Requests.csv");
+                Scanner transactionScanner = new Scanner(transactionFile);
+                Scanner requestScanner = new Scanner(requestsFile);
+
+                while (transactionScanner.hasNextLine()){
+                    String[] transactionInfo = transactionScanner.nextLine().split(",");
+
+                    if(transactionInfo[3].equals(reservedByUsername)){
+                        String reqID = transactionInfo[0];
+
+                        while(requestScanner.hasNextLine()){
+                            String[] requestInfo = requestScanner.nextLine().split(",");
+                            if(requestInfo[0].equals(reqID)){
+                                String[] postedData = {requestInfo[2], transactionInfo[1], transactionInfo[2]};
+                                userReservedTransactions.add(postedData);
+                                break;
+                            }
+                        }
+                    }
+                }
+                transactionScanner.close();
+                requestScanner.close();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return userReservedTransactions;
         }
 
         public static void setReqID(String reqID){
