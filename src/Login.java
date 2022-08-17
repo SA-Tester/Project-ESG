@@ -58,12 +58,14 @@ public class Login extends UserInterfaces{
                 addPostARequest();
                 addReserve();
                 addUserHistory();
+                addReservedActionsPanel();
                 loginFrame.dispose();
             }
             else if(msg.equals("USER PRIVILEGES")){
                 addPostARequest();
                 addReserve();
                 addUserHistory();
+                addReservedActionsPanel();
                 loginFrame.dispose();
             }
             else{
@@ -219,13 +221,26 @@ public class Login extends UserInterfaces{
     }
 
     private void addUserHistory(){
-        Home.Right.userHistoryPanel.setSize(262,640);
+        Home.Right.userHistoryPanel.setSize(262,300);
+        Home.Right.historyScroll.setSize(262,300);
         Home.Right.userHistoryPanel.setText("User History\n\n");
 
         UserHistory.getUserHistory();
         for(int i=0; i<UserHistory.history.size(); i++){//username,date, msg,itemName, qty
             String[] data = UserHistory.history.get(i);
             Home.Right.addToUserHistory(data[1],data[2],data[3],data[4],false);
+        }
+    }
+
+    private void addReservedActionsPanel(){
+        Home.Right.reservedActionsPanel.setSize(262,320);
+        Home.Right.reservedScroll.setSize(262, 320);
+        Home.Right.reservedActionsPanel.setText("Reserved Transactions\n");
+
+        ArrayList<String[]> userReservedTransactions = Files.Reserved.getUserReservedTransactions(currentLogin);
+        for (String[] userReservedTransaction : userReservedTransactions) {
+            Home.Right.reservedActionsPanel.append("\nItem Name: " + userReservedTransaction[0] + "\n" + "Name: " + userReservedTransaction[1] + "\n"
+                    + "Telephone: " + userReservedTransaction[2] + "\n");
         }
     }
 

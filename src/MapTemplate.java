@@ -29,8 +29,8 @@ import java.util.ArrayList;
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
     //public WorldWindow wwdPublic;
-    static private ArrayList <String> placeMarkData = new ArrayList<>();
-    static private ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
+    static private final ArrayList <String> placeMarkData = new ArrayList<>();
+    static private final ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
 
    public static class MapPanel extends JPanel{
@@ -83,21 +83,27 @@ public class MapTemplate {
         insertBeforeCompass(MapPanel.getWWD(),placeMarkLayer);
     }
 
-    public void addPlaceMark(double lat, double lon, String name, boolean addToFile){
+    public void addPlaceMark(double lat, double lon, String name, String requirement, boolean addToFile){
         placeMarkLayer.setName("placeMarkLayer");
         PointPlacemark p = new PointPlacemark(Position.fromDegrees(lat,lon,1000));
         p.setLabelText(name);
         p.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         p.setEnableLabelPicking(true);
         PointPlacemarkAttributes attributes = new PointPlacemarkAttributes();
-        attributes.setImageAddress("images/locationPin.png");
+
+        switch (requirement) {
+            case "HAVE" -> attributes.setImageAddress("images/locationPin_GREEN.png");
+            case "NEED" -> attributes.setImageAddress("images/locationPin_RED.png");
+            default -> attributes.setImageAddress("images/locationPin_BLACK.png");
+        }
+
         p.setAttributes(attributes);
         placeMarkLayer.addRenderable(p);
         placeMarkPoints.add(p);
 
         if(addToFile){
             getPlaceMarks(p);
-            new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
+            new PlaceMarkDetails().writeToPlaceMarkFile();
         }
         else {
             getPlaceMarks(p);
@@ -142,12 +148,12 @@ public class MapTemplate {
        }catch (IndexOutOfBoundsException e){
            e.printStackTrace();
        }
-       new PlaceMarkDetails().writeToPlaceMarkFile(placeMarkData);
+       new PlaceMarkDetails().writeToPlaceMarkFile();
    }
 
    private static class PlaceMarkDetails extends Files.PlaceMarkDetails{
-       void writeToPlaceMarkFile(ArrayList <String> placeMarkList){
-           Files.PlaceMarkDetails.writeToPlaceMarkDetails(placeMarkList);
+       void writeToPlaceMarkFile(){
+           Files.PlaceMarkDetails.writeToPlaceMarkDetails(MapTemplate.placeMarkData);
        }
    }
 }

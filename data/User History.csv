@@ -1,3 +1,6 @@
-User,2022-08-10,CLAIMED,Rambutan,100
-Admin,2022-08-10,CLAIMED,Roses,100
-User,2022-08-10,GAVE,Grapes,1.5 kg
+User,2022-08-17,GAVE,Tea,10 kg
+User,2022-08-17,GAVE,Milk Powder,5 kg
+tonyStark,2022-08-17,GAVE,Roses,100
+Admin,2022-08-17,GAVE,Dhal,5 kg
+tonyStark,2022-08-17,CLAIMED,Rice,40 kg
+User,2022-08-17,GAVE,Rice,40 kg
