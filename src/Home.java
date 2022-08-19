@@ -74,12 +74,13 @@ public class Home{
         public static  ArrayList<String> placeMarkLatList;
         public static ArrayList<String> placeMarkLonList;
         private static JTextArea completedActions;
+        private static JScrollPane completedScroll;
         private static int selectedIndex;
         private static double selectedLat;
         private static double selectedLon;
 
-        public static JTextArea getJTextArea(){
-            return completedActions;
+        public static JScrollPane getCompletedJScroll(){
+            return completedScroll;
         }
 
         public static int getSelectedIndex(){
@@ -115,20 +116,23 @@ public class Home{
             leftPanel.add(searchButton);
 
             completedActions = new JTextArea();
-            completedActions.setBounds(20,80,260,720);//260,650
+            completedActions.setBounds(20,80,260,720);
             completedActions.setBackground(Color.BLACK);
             completedActions.setForeground(Color.GREEN);
             completedActions.setBorder(new EmptyBorder(20,20,20,20));
             completedActions.setFont(new Font("Arial", Font.BOLD, 15));
             completedActions.setText("Latest Completed Actions\n");
+
+            completedScroll = new JScrollPane(completedActions);
+            completedScroll.setBounds(20,80,260,720);
+            completedScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            leftPanel.add(completedScroll);
+
             Files.Completed.readFromCompletedFile();
 
-            for(int i=0; i<Files.Completed.nLines; i++){ //
-                if(i <= 8){
-                    addToCompletedActions(Files.Completed.dates.get(i), Files.Completed.quantities.get(i), Files.Completed.items.get(i));
-                }
+            for(int i=0; i<Files.Completed.nLines; i++){
+                addToCompletedActions(Files.Completed.dates.get(i), Files.Completed.quantities.get(i), Files.Completed.items.get(i));
             }
-            leftPanel.add(completedActions);
 
             searchButton.addActionListener(e -> {
                 if(locationList.getSelectedIndex() > -1){
@@ -161,27 +165,30 @@ public class Home{
 
     //Add map to main window
     private JPanel addMap() {
+        ArrayList <Integer> completedIndexes = new ArrayList<>(); //Wrapper Classes
         JPanel wwdPanel = new MapTemplate.MapPanel(new Dimension(dim[0] - 670, dim[1] - 260), true);
 
         for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
             Files.Requests.readFromRequestsFile(i);
             Files.Reserved.readFromReservedFile();
 
-            if(Files.Reserved.getTransactionList().size() == 0){
-                mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
-                        PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
-            }
-            else{
-                for(int j=0; j<Files.Reserved.getTransactionList().size(); j++){
-                    if(Files.Reserved.getTransactionList().get(j)[0].equals(Files.Requests.getCurrentRequestID())){
+            if(Files.Reserved.getTransactionList().size() > 0) {
+                for (int j = 0; j < Files.Reserved.getTransactionList().size(); j++) {
+                    if (Files.Reserved.getTransactionList().get(j)[0].equals(Files.Requests.getCurrentRequestID())) {
                         mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
-                                PlaceMarkDetails.placeMarkNameList.get(i), "RESERVED",false);
-                    }
-                    else{
-                        mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
-                                PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
+                                PlaceMarkDetails.placeMarkNameList.get(i), "RESERVED", false);
+                        completedIndexes.add(i);
                     }
                 }
+            }
+        }
+
+        for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
+            Files.Requests.readFromRequestsFile(i);
+
+            if(!completedIndexes.contains(i)){
+                mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
+                        PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
             }
         }
         return wwdPanel;
