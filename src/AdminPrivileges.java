@@ -27,7 +27,6 @@ public class AdminPrivileges extends UserInterfaces{
     private final int width = 1500;
     private final int height = 800;
     private final int[] dim = new Home().getScreenDimensions();
-
     private static String[][] data = null;
 
     @Override
@@ -112,16 +111,24 @@ public class AdminPrivileges extends UserInterfaces{
             if(Home.Left.placeMarkNameList.size() > 0){
                 Home.Left.addToCompletedActions(date.toString(), Files.Requests.deletedItemName, Files.Requests.deletedQuantity);
 
+                Files.PlaceMarkDetails placeMarks = new Files.PlaceMarkDetails();
                 Files.PlaceMarkDetails.readFromPlaceMarkDetails(lineIndex);
-                Home.mp.removePlaceMark(new Files.PlaceMarkDetails().getSelectedLat(), new Files.PlaceMarkDetails().getSelectedLon());
+                Home.Left.locationList.removeItem(Home.Left.locationList.getItemAt(lineIndex));
                 Home.Left.placeMarkNameList.remove(lineIndex);
                 Home.Left.placeMarkLatList.remove(lineIndex);
                 Home.Left.placeMarkLonList.remove(lineIndex);
-                Home.Left.locationList.removeItem(Home.Left.locationList.getItemAt(lineIndex));
+                new MapTemplate().removePlaceMark(placeMarks.getSelectedLat(), placeMarks.getSelectedLon());
             }
 
-            Files.UserHistory.writeToUserHistory(data[row][3],date.toString(),"CLAIMED",Files.Requests.getCurrentItemName(),Files.Requests.getCurrentQuantity(),true);
-            Files.UserHistory.writeToUserHistory(data[row][1],date.toString(),"GAVE",Files.Requests.getCurrentItemName(),Files.Requests.getCurrentQuantity(),true);
+            if(Files.Requests.getCurrentStatus().equals("NEED") && Files.Requests.getCurrentUsername().equals(data[row][1])){
+                Files.UserHistory.writeToUserHistory(data[row][1],date.toString(),"CLAIMED",Files.Requests.getCurrentItemName(),Files.Requests.getCurrentQuantity(),true);
+            }
+            else if(Files.Requests.getCurrentStatus().equals("HAVE") && Files.Requests.getCurrentUsername().equals(data[row][3])){
+                Files.UserHistory.writeToUserHistory(data[row][3],date.toString(),"GAVE",Files.Requests.getCurrentItemName(),Files.Requests.getCurrentQuantity(),true);
+            }
+            else if(Files.Requests.getCurrentStatus().equals("NEED") && Files.Requests.getCurrentUsername().equals(data[row][3])){
+                Files.UserHistory.writeToUserHistory(data[row][3],date.toString(),"CLAIMED",Files.Requests.getCurrentItemName(),Files.Requests.getCurrentQuantity(),true);
+            }
 
             model.removeRow(row);
         });

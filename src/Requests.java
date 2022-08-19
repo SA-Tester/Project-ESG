@@ -39,7 +39,6 @@ public class Requests extends UserInterfaces{
     @Override
     JPanel createPanel() {
         String username = Login.currentLogin;
-        Files.Requests.getRequestCount();
 
         itemNameTextBox = createJTextField(itemNameTextBox,0);
         quantityTextBox = createJTextField(quantityTextBox,60);
@@ -72,7 +71,6 @@ public class Requests extends UserInterfaces{
         preferredCityCombo.setSelectedItem(Files.SignUpDetails.getUserCity());
 
         haveItButton.addActionListener(e -> setRequestToHaveIt());
-
         needItButton.addActionListener(e -> setRequestToNeedIt());
 
         confirm.addActionListener(e -> {
@@ -83,14 +81,14 @@ public class Requests extends UserInterfaces{
             String preferredCity = Objects.requireNonNull(preferredCityCombo.getSelectedItem()).toString();
             String price = priceTextBox.getText();
             String request = getRequest();
-            if(request.equals("HAVE")){
-                reqID = "H" + (Files.Requests.getNoOfHaveItRequests() + 1);
 
+            if(request.equals("HAVE")){
+                reqID = "H" + (Files.Requests.getReqID("HAVE") + 1);
                 LocalDate date = LocalDate.now();
                 Home.Right.addToUserHistory(date.toString(),"GAVE",quantity,itemName,true);
             }
             else {
-                reqID = "W" + (Files.Requests.getNoOfWantItRequests() + 1);
+                reqID = "W" + (Files.Requests.getReqID("NEED") + 1);
             }
 
             int selectedCityIndex = preferredCityCombo.getSelectedIndex();

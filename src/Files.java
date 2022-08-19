@@ -2,6 +2,7 @@ import javax.swing.JOptionPane;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Random;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -193,10 +194,7 @@ public class Files {
         public double getSelectedLat(){
             return selectedLat;
         }
-
-        public double getSelectedLon(){
-            return selectedLon;
-        }
+        public double getSelectedLon(){return selectedLon;}
     }
 
     protected static class CitiesInDistricts{
@@ -252,8 +250,7 @@ public class Files {
         private static int lineNumber = 0;
         static String deletedItemName = null;
         static String deletedQuantity = null;
-        private static int haveItRequests = 0;
-        private static int wantItRequests = 0;
+
         protected static void writeToRequestFile(String reqID, String username, String item, String quantity, String province, String district, String city,
                                                  String price, String needOrHave){
             try{
@@ -301,30 +298,50 @@ public class Files {
                     if (data[0].equals(reqID)){
                         lineNumber = lineNo;
                     }
-                    lineNo ++;
+                    lineNo++;
                 }
+                scanner.close();
             }catch (IOException e){
                 e.printStackTrace();
             }
         }
 
-        protected static void getRequestCount(){
+        protected static int getReqID(String status){
+            ArrayList <Integer> haveItIndexes = new ArrayList<>();
+            ArrayList <Integer> wantItIndexes = new ArrayList<>();
+
             try{
                 File requestsFile = new File("data/Requests.csv");
                 Scanner scanner = new Scanner(requestsFile);
-                while(scanner.hasNextLine()){
+                while (scanner.hasNextLine()){
                     String[] data = scanner.nextLine().split(",");
-                    if(data[8].equals("HAVE")){
-                        haveItRequests++;
+                    if(data[0].charAt(0) == 'H'){
+                        haveItIndexes.add(Integer.parseInt(data[0].substring(1)));
                     }
-                    else{
-                        wantItRequests++;
+                    else {
+                        wantItIndexes.add(Integer.parseInt(data[0].substring(1)));
                     }
                 }
                 scanner.close();
             }catch (IOException e){
                 e.printStackTrace();
             }
+
+            Random rand = new Random();
+            int id = rand.nextInt();
+            if(status.equals("HAVE")){
+                while (!haveItIndexes.contains(id)){
+                    id = rand.nextInt();
+                    haveItIndexes.add(id);
+                }
+            }
+            else{
+                while (!wantItIndexes.contains(id)){
+                    id = rand.nextInt();
+                    wantItIndexes.add(id);
+                }
+            }
+            return id;
         }
 
         protected static void deleteFromRequests(String reqID){
@@ -361,12 +378,6 @@ public class Files {
             }
         }
 
-        protected static int getNoOfHaveItRequests(){
-            return haveItRequests;
-        }
-        protected static int getNoOfWantItRequests(){
-            return wantItRequests;
-        }
         public static String getCurrentRequestID() {return currentRequestID;}
         public static String getCurrentUsername(){return currentUsername;}
         public static String getCurrentItemName() {return currentItemName;}

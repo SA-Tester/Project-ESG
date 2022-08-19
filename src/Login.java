@@ -197,12 +197,12 @@ public class Login extends UserInterfaces{
         Home.Left.onGoingButton.setForeground(Color.WHITE);
         Home.Left.onGoingButton.setFont(new Font("Arial", Font.PLAIN, 18));
         Home.Left.onGoingButton.setBorder(BorderFactory.createBevelBorder(1));
-        Home.Left.getJTextArea().setSize(260,650);
+        Home.Left.getCompletedJScroll().setSize(260,650);
     }
 
     private void addPostARequest(){
         Home.Right.postARequest.setText("Post");
-        Home.Right.postARequest.setBounds(90, dim[1] - 330, 140, 40);
+        Home.Right.postARequest.setBounds(70, dim[1] - 330, 180, 40);
         Color green = new Color(50, 145, 35);
         Home.Right.postARequest.setBackground(green);
         Home.Right.postARequest.setForeground(Color.WHITE);
@@ -211,8 +211,8 @@ public class Login extends UserInterfaces{
     }
 
     private void addReserve(){
-        Home.Right.reserve.setText("Reserve Item");
-        Home.Right.reserve.setBounds(90,dim[1]-400,140,40);
+        Home.Right.reserve.setText("Reserve Request");
+        Home.Right.reserve.setBounds(70,dim[1]-400,180,40);
         Color green = new Color(50, 145, 35);
         Home.Right.reserve.setBackground(green);
         Home.Right.reserve.setForeground(Color.WHITE);
