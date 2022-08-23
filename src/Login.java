@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 public class Login extends UserInterfaces{
     public static String currentLogin;
     JFrame loginFrame = new JFrame();
@@ -237,6 +236,7 @@ public class Login extends UserInterfaces{
         Home.Right.reservedScroll.setSize(262, 320);
         Home.Right.reservedActionsPanel.setText("Reserved Transactions\n");
 
+        //ArrayList<String[]> userReservedTransactions = Files.Reserved.getUserReservedTransactions(currentLogin);
         ArrayList<String[]> userReservedTransactions = Files.Reserved.getUserReservedTransactions(currentLogin);
         for (String[] userReservedTransaction : userReservedTransactions) {
             Home.Right.reservedActionsPanel.append("\nItem Name: " + userReservedTransaction[0] + "\n" + "Name: " + userReservedTransaction[1] + "\n"
@@ -415,6 +415,7 @@ public class Login extends UserInterfaces{
     }
 
     private static class UserHistory extends Files.UserHistory{
+        //static ArrayList <String[]> history = Files.UserHistory.userHistoryList;
         static ArrayList <String[]> history = Files.UserHistory.userHistoryList;
         private static void getUserHistory(){
             Files.UserHistory.readFromUserHistory(currentLogin);
