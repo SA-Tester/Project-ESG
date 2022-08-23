@@ -16,6 +16,7 @@ import java.awt.Font;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
+//import java.util.ArrayList;
 
 import java.time.LocalDate;
 
@@ -66,6 +67,7 @@ public class AdminPrivileges extends UserInterfaces{
         String[] columns = {"Request ID", "Posted By", "Telephone", "Reserved By", "Telephone", "Transferred Province", "Transferred District", "Transferred City"};
 
         Files.Reserved.readFromReservedFile();
+        //ArrayList<String[]> dataList = Files.Reserved.getTransactionList();
         ArrayList<String[]> dataList = Files.Reserved.getTransactionList();
         data = new String[dataList.size()][8];
         for(int i=0; i<dataList.size(); i++){
@@ -117,7 +119,7 @@ public class AdminPrivileges extends UserInterfaces{
                 Home.Left.placeMarkNameList.remove(lineIndex);
                 Home.Left.placeMarkLatList.remove(lineIndex);
                 Home.Left.placeMarkLonList.remove(lineIndex);
-                new MapTemplate().removePlaceMark(placeMarks.getSelectedLat(), placeMarks.getSelectedLon());
+                new MapTemplate().removePlaceMark(placeMarks.getSelectedLat(), placeMarks.getSelectedLon(), Home.Left.locationList.getSelectedIndex());
             }
 
             if(Files.Requests.getCurrentStatus().equals("NEED") && Files.Requests.getCurrentUsername().equals(data[row][1])){

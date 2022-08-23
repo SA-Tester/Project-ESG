@@ -26,9 +26,8 @@ import java.util.ArrayList;
 
 public class Home{
     static JFrame homeFrame = new JFrame(); //Identifier of Main Window
-
-    protected int[] dim = getScreenDimensions();////Array holding screen width and height. Only used by hte Home class
-    static MapTemplate mp = new MapTemplate();
+    private final int[] dim = getScreenDimensions();//Array holding screen width and height. Only used by hte Home class
+    private static final MapTemplate mp = new MapTemplate();
 
     int[] getScreenDimensions(){
         int[] dim = new int[2];
@@ -43,12 +42,7 @@ public class Home{
         JLabel label = new JLabel(text);
         label.setForeground(Color.WHITE);
         label.setFont(new Font("Arial",Font.BOLD,fontSize));
-
-        switch ("center".toLowerCase()) {
-            case "center" -> label.setAlignmentX(Component.CENTER_ALIGNMENT);
-            case "left" -> label.setAlignmentX(Component.LEFT_ALIGNMENT);
-            case "right" -> label.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        }
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(label);
     }
 
@@ -67,7 +61,7 @@ public class Home{
         return titleBar;
     }
 
-    public static class Left{
+    public class Left{
         public static JButton onGoingButton = new JButton();
         public static JComboBox<Object> locationList;
         public static ArrayList<String> placeMarkNameList;
@@ -83,14 +77,10 @@ public class Home{
             return completedScroll;
         }
 
-        public static int getSelectedIndex(){
-            return selectedIndex;
-        }
-
         private JPanel addLeftPanel(){
             JPanel leftPanel = new JPanel();
             leftPanel.setBackground(Color.DARK_GRAY);
-            leftPanel.setPreferredSize(new Dimension(300,800));//d[1]-200
+            leftPanel.setPreferredSize(new Dimension(300,800));
             leftPanel.setLayout(null);
             leftPanel.setBorder(new EmptyBorder(15,15,15,15));
 
@@ -121,7 +111,7 @@ public class Home{
             completedActions.setForeground(Color.GREEN);
             completedActions.setBorder(new EmptyBorder(20,20,20,20));
             completedActions.setFont(new Font("Arial", Font.BOLD, 15));
-            completedActions.setText("Latest Completed Actions\n");
+            completedActions.setText("Latest Completed Actions\n\n");
 
             completedScroll = new JScrollPane(completedActions);
             completedScroll.setBounds(20,80,260,720);
@@ -129,7 +119,6 @@ public class Home{
             leftPanel.add(completedScroll);
 
             Files.Completed.readFromCompletedFile();
-
             for(int i=0; i<Files.Completed.nLines; i++){
                 addToCompletedActions(Files.Completed.dates.get(i), Files.Completed.quantities.get(i), Files.Completed.items.get(i));
             }
@@ -185,7 +174,6 @@ public class Home{
 
         for(int i=0; i<PlaceMarkDetails.placeMarkNameList.size(); i++){
             Files.Requests.readFromRequestsFile(i);
-
             if(!completedIndexes.contains(i)){
                 mp.addPlaceMark(Double.parseDouble(PlaceMarkDetails.placeMarkLatList.get(i)), Double.parseDouble(PlaceMarkDetails.placeMarkLonList.get(i)),
                         PlaceMarkDetails.placeMarkNameList.get(i), Files.Requests.getCurrentStatus(),false);
@@ -320,6 +308,7 @@ public class Home{
 
         static void setConsole(int selectedIndex){
             console.removeAll();
+            console.revalidate();
             Files.Requests.readFromRequestsFile(selectedIndex);
 
             JLabel itemName = new JLabel();

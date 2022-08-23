@@ -2,6 +2,7 @@ import javax.swing.JOptionPane;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+//import java.util.Vector;
 import java.util.Random;
 
 import java.io.File;
@@ -51,6 +52,7 @@ public class Files {
     }
 
     protected static class SignUpDetails{
+        //private static final ArrayList <String> storedUsernames = new ArrayList<>();
         private static final ArrayList <String> storedUsernames = new ArrayList<>();
         private static String name;
         private static String telephoneNumber;

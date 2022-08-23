@@ -10,8 +10,10 @@ import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.ViewControlsSelectListener;
+import gov.nasa.worldwind.render.Offset;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.PointPlacemarkAttributes;
+import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwindx.examples.util.HighlightController;
@@ -28,7 +30,6 @@ import java.util.ArrayList;
 //This is the template for Map Display
 //Source: NASA WorldWind ApplicationTemplate.java
 public class MapTemplate {
-    //public WorldWindow wwdPublic;
     static private final ArrayList <String> placeMarkData = new ArrayList<>();
     static private final ArrayList<PointPlacemark> placeMarkPoints = new ArrayList<>();
     static final RenderableLayer placeMarkLayer = new RenderableLayer();
@@ -86,10 +87,28 @@ public class MapTemplate {
     public void addPlaceMark(double lat, double lon, String name, String requirement, boolean addToFile){
         placeMarkLayer.setName("placeMarkLayer");
         PointPlacemark p = new PointPlacemark(Position.fromDegrees(lat,lon,1000));
-        p.setLabelText(name);
+
+        int c = 0;
+        for(Renderable r: placeMarkLayer.getRenderables()){
+            if(r instanceof PointPlacemark){
+                if(((PointPlacemark) r).getPosition() == p.getPosition()){
+                    c++;
+                }
+            }
+        }
+
+        PointPlacemarkAttributes attributes = new PointPlacemarkAttributes();
+        if(c>0){
+            p.setLabelText(name + " " + c);
+            attributes.setImageOffset(new Offset(19d, 8d, AVKey.PIXELS, AVKey.PIXELS));
+            attributes.setLabelOffset(new Offset(0.9d, 0.6d, AVKey.FRACTION, AVKey.FRACTION));
+        }
+        else{
+            p.setLabelText(name);
+        }
+
         p.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         p.setEnableLabelPicking(true);
-        PointPlacemarkAttributes attributes = new PointPlacemarkAttributes();
 
         switch (requirement) {
             case "HAVE" -> attributes.setImageAddress("images/locationPin_GREEN.png");
@@ -134,12 +153,12 @@ public class MapTemplate {
        placeMarkData.add(dataLine);
    }
 
-   public void removePlaceMark(double lat, double lon){
+   public void removePlaceMark(double lat, double lon, int index){
        Position pos = new Position(Position.fromDegrees(lat, lon,1000));
 
        try {
            for (int i = 0; i < placeMarkPoints.size(); i++) {
-               if (placeMarkPoints.get(i).getPosition().equals(pos)) {
+               if (placeMarkPoints.get(i).getPosition().equals(pos) && i==index) {
                    placeMarkLayer.removeRenderable(placeMarkPoints.get(i));
                    placeMarkData.remove(i);
                    placeMarkPoints.remove(placeMarkPoints.get(i));
